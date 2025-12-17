@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,9 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Users, Search, Download } from 'lucide-react';
 import { MemberCard } from '@/components/members/MemberCard';
 import { ProfileEditDialog } from '@/components/members/ProfileEditDialog';
+import { MemberProfileDialog } from '@/components/members/MemberProfileDialog';
+import { AdminPositionsDialog } from '@/components/members/AdminPositionsDialog';
 import { useMembers, useMemberByUserId } from '@/hooks/useMembers';
 import { useAuth } from '@/contexts/AuthContext';
 import { exportToCSV } from '@/lib/csv';
+import { Tables } from '@/integrations/supabase/types';
+
+type Profile = Tables<'profiles'>;
 
 export default function MembersPage() {
   const { isAdminOrOfficer, user } = useAuth();
@@ -20,6 +24,9 @@ export default function MembersPage() {
   const { data: myProfile } = useMemberByUserId(user?.id || '');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedMember, setSelectedMember] = useState<Profile | null>(null);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+
   // Filter members
   const filteredMembers = useMemo(() => {
     if (!members) return [];
@@ -42,6 +49,11 @@ export default function MembersPage() {
   const handleExport = () => {
     if (!members) return;
     exportToCSV(members, 'members-directory');
+  };
+
+  const handleMemberClick = (member: Profile) => {
+    setSelectedMember(member);
+    setProfileDialogOpen(true);
   };
 
   return (
@@ -121,7 +133,16 @@ export default function MembersPage() {
       ) : filteredMembers.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredMembers.map((member) => (
-            <MemberCard key={member.id} member={member} />
+            <div key={member.id} className="relative group">
+              <div onClick={() => handleMemberClick(member)} className="cursor-pointer">
+                <MemberCard member={member} />
+              </div>
+              {isAdminOrOfficer && (
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <AdminPositionsDialog member={member} />
+                </div>
+              )}
+            </div>
           ))}
         </div>
       ) : members && members.length > 0 ? (
@@ -137,6 +158,13 @@ export default function MembersPage() {
           description="Members will appear here once they sign up and join the chapter."
         />
       )}
+
+      {/* Member Profile Dialog */}
+      <MemberProfileDialog
+        member={selectedMember}
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
+      />
     </AppLayout>
   );
 }

@@ -483,16 +483,21 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          big: string | null
           committees: string[] | null
           created_at: string
           email: string
+          family: string | null
           first_name: string
           graduation_year: number | null
+          hometown: string | null
           id: string
           last_name: string
           linkedin_url: string | null
+          little: string | null
           major: string | null
           phone: string | null
+          pledge_class: string | null
           positions: string[] | null
           status: Database["public"]["Enums"]["member_status"]
           updated_at: string
@@ -500,16 +505,21 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          big?: string | null
           committees?: string[] | null
           created_at?: string
           email: string
+          family?: string | null
           first_name?: string
           graduation_year?: number | null
+          hometown?: string | null
           id?: string
           last_name?: string
           linkedin_url?: string | null
+          little?: string | null
           major?: string | null
           phone?: string | null
+          pledge_class?: string | null
           positions?: string[] | null
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
@@ -517,22 +527,42 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          big?: string | null
           committees?: string[] | null
           created_at?: string
           email?: string
+          family?: string | null
           first_name?: string
           graduation_year?: number | null
+          hometown?: string | null
           id?: string
           last_name?: string
           linkedin_url?: string | null
+          little?: string | null
           major?: string | null
           phone?: string | null
+          pledge_class?: string | null
           positions?: string[] | null
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_big_fkey"
+            columns: ["big"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_little_fkey"
+            columns: ["little"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resources: {
         Row: {

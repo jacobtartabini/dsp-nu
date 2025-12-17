@@ -3,24 +3,30 @@ import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { ProfileEditDialog } from '@/components/members/ProfileEditDialog';
+import { useMemberByUserId } from '@/hooks/useMembers';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function SettingsPage() {
-  const { profile, roles } = useAuth();
+  const { profile, roles, user } = useAuth();
+  const { data: fullProfile } = useMemberByUserId(user?.id || '');
 
   return (
     <AppLayout>
       <PageHeader title="Settings" description="Manage your account" />
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Profile Information</CardTitle>
+          {fullProfile && <ProfileEditDialog profile={fullProfile} />}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-primary font-display font-bold text-xl">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={profile?.avatar_url || ''} />
+              <AvatarFallback className="text-xl bg-primary/10 text-primary">
                 {profile?.first_name?.[0]}{profile?.last_name?.[0]}
-              </span>
-            </div>
+              </AvatarFallback>
+            </Avatar>
             <div>
               <p className="font-semibold">{profile?.first_name} {profile?.last_name}</p>
               <p className="text-sm text-muted-foreground">{profile?.email}</p>
