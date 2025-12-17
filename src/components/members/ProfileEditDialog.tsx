@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -7,10 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pencil } from 'lucide-react';
-import { useUpdateMember } from '@/hooks/useMembers';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Pencil, Upload, Loader2 } from 'lucide-react';
+import { useUpdateMember, useMembers } from '@/hooks/useMembers';
 import { Tables } from '@/integrations/supabase/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -19,20 +22,30 @@ const formSchema = z.object({
   major: z.string().optional(),
   graduation_year: z.coerce.number().min(2000).max(2100).optional().or(z.literal('')),
   linkedin_url: z.string().url().optional().or(z.literal('')),
+  pledge_class: z.string().optional(),
+  family: z.string().optional(),
+  big: z.string().optional(),
+  little: z.string().optional(),
+  hometown: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
-
 type Profile = Tables<'profiles'>;
 
 interface ProfileEditDialogProps {
   profile: Profile;
+  trigger?: React.ReactNode;
 }
 
-export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
+export function ProfileEditDialog({ profile, trigger }: ProfileEditDialogProps) {
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || '');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const updateMember = useUpdateMember();
-  const { refreshProfile } = useAuth();
+  const { refreshProfile, user } = useAuth();
+  const { data: members } = useMembers();
+  const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -43,8 +56,41 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
       major: profile.major || '',
       graduation_year: profile.graduation_year || '',
       linkedin_url: profile.linkedin_url || '',
+      pledge_class: (profile as any).pledge_class || '',
+      family: (profile as any).family || '',
+      big: (profile as any).big || '',
+      little: (profile as any).little || '',
+      hometown: (profile as any).hometown || '',
     },
   });
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      setAvatarUrl(publicUrl);
+      toast({ title: 'Photo uploaded successfully' });
+    } catch (error: any) {
+      toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     await updateMember.mutateAsync({
@@ -55,25 +101,67 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
       major: data.major || null,
       graduation_year: data.graduation_year ? Number(data.graduation_year) : null,
       linkedin_url: data.linkedin_url || null,
-    });
+      avatar_url: avatarUrl || null,
+      pledge_class: data.pledge_class || null,
+      family: data.family || null,
+      big: data.big || null,
+      little: data.little || null,
+      hometown: data.hometown || null,
+    } as any);
     await refreshProfile();
     setOpen(false);
   };
 
+  const otherMembers = members?.filter(m => m.id !== profile.id) || [];
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Pencil className="h-4 w-4" />
-          Edit Profile
-        </Button>
+        {trigger || (
+          <Button variant="outline" size="sm" className="gap-2">
+            <Pencil className="h-4 w-4" />
+            Edit Profile
+          </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Avatar Upload */}
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback className="text-xl bg-primary/10 text-primary">
+                  {profile.first_name?.[0]}{profile.last_name?.[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Uploading...</>
+                  ) : (
+                    <><Upload className="h-4 w-4 mr-2" /> Upload Photo</>
+                  )}
+                </Button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -102,6 +190,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                 )}
               />
             </div>
+
             <FormField
               control={form.control}
               name="phone"
@@ -115,32 +204,132 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="major"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Major</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. Business Administration" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="graduation_year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Graduation Year</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" placeholder="2025" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
-              name="major"
+              name="hometown"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Major</FormLabel>
+                  <FormLabel>Hometown</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g. Business Administration" />
+                    <Input {...field} placeholder="e.g. New York, NY" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="graduation_year"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Graduation Year</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" placeholder="2025" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="pledge_class"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pledge Class</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. Alpha" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="family"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Family</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. The Wolves" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="big"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Big</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Big" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">None</SelectItem>
+                        {otherMembers.map(m => (
+                          <SelectItem key={m.id} value={m.id}>
+                            {m.first_name} {m.last_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="little"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Little</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Little" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">None</SelectItem>
+                        {otherMembers.map(m => (
+                          <SelectItem key={m.id} value={m.id}>
+                            {m.first_name} {m.last_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name="linkedin_url"
@@ -154,6 +343,7 @@ export function ProfileEditDialog({ profile }: ProfileEditDialogProps) {
                 </FormItem>
               )}
             />
+
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel

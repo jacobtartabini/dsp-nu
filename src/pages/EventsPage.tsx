@@ -17,6 +17,7 @@ import { CalendarView } from '@/components/events/CalendarView';
 import { QRCodeDisplay } from '@/components/attendance/QRCodeDisplay';
 import { QRScanner } from '@/components/attendance/QRScanner';
 import { AttendanceList } from '@/components/attendance/AttendanceList';
+import { ManualAttendanceDialog } from '@/components/attendance/ManualAttendanceDialog';
 import { downloadICS } from '@/lib/calendar';
 import { Tables } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
@@ -209,6 +210,9 @@ export default function EventsPage() {
           </DialogHeader>
           {selectedEvent && isAdminOrOfficer && (
             <div className="space-y-4">
+              <div className="flex justify-end">
+                <ManualAttendanceDialog event={selectedEvent} />
+              </div>
               <QRCodeDisplay event={selectedEvent} />
               <AttendanceList eventId={selectedEvent.id} eventTitle={selectedEvent.title} />
             </div>
