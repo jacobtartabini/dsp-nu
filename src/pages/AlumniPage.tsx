@@ -6,9 +6,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { GraduationCap, Search, Download, Building2, MapPin, Linkedin } from 'lucide-react';
+import { GraduationCap, Search, Download, Building2 } from 'lucide-react';
 import { AlumniForm } from '@/components/alumni/AlumniForm';
 import { AlumniCard } from '@/components/alumni/AlumniCard';
+import { AlumniImportDialog } from '@/components/alumni/AlumniImportDialog';
 import { useAlumni } from '@/hooks/useAlumni';
 import { useAuth } from '@/contexts/AuthContext';
 import { exportToCSV } from '@/lib/csv';
@@ -56,7 +57,12 @@ export default function AlumniPage() {
         title="Alumni Network" 
         description="Connect with chapter alumni"
       >
-        {isAdminOrOfficer && <AlumniForm />}
+        {isAdminOrOfficer && (
+          <div className="flex gap-2">
+            <AlumniImportDialog />
+            <AlumniForm />
+          </div>
+        )}
       </PageHeader>
 
       {/* Stats */}
