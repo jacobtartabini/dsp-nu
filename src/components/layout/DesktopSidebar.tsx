@@ -12,6 +12,8 @@ import {
   Settings,
   HelpCircle,
   LogOut,
+  Clock,
+  DollarSign,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,6 +26,8 @@ const navItems = [
   { icon: Users, label: 'Members', path: '/members' },
   { icon: Calendar, label: 'Events', path: '/events' },
   { icon: Award, label: 'Points', path: '/points' },
+  { icon: Clock, label: 'Service Hours', path: '/service-hours' },
+  { icon: DollarSign, label: 'Dues', path: '/dues', adminOnly: true },
   { icon: Briefcase, label: 'Job Board', path: '/jobs' },
   { icon: GraduationCap, label: 'Alumni', path: '/alumni' },
   { icon: FolderOpen, label: 'Resources', path: '/resources' },
@@ -38,11 +42,13 @@ const bottomItems = [
 
 export function DesktopSidebar() {
   const location = useLocation();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, isAdminOrOfficer } = useAuth();
 
   const initials = profile
     ? `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`
     : '';
+
+  const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdminOrOfficer);
 
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen bg-card border-r border-border fixed left-0 top-0">
@@ -63,7 +69,7 @@ export function DesktopSidebar() {
 
       {/* Main Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {navItems.map(({ icon: Icon, label, path }) => {
+        {filteredNavItems.map(({ icon: Icon, label, path }) => {
           const isActive = location.pathname === path;
           return (
             <Link
