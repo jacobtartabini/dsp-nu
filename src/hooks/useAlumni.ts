@@ -112,3 +112,27 @@ export function useDeleteAlumni() {
     },
   });
 }
+
+export function useBulkCreateAlumni() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (alumniList: AlumniInsert[]) => {
+      const { data, error } = await supabase
+        .from('alumni')
+        .insert(alumniList)
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['alumni'] });
+      toast({ title: `${data.length} alumni imported successfully` });
+    },
+    onError: (error) => {
+      toast({ title: 'Failed to import alumni', description: error.message, variant: 'destructive' });
+    },
+  });
+}
