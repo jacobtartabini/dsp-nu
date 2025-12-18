@@ -16,6 +16,8 @@ const mainNavItems = [
 ];
 
 const moreNavItems = [
+  { label: 'Service Hours', path: '/service-hours' },
+  { label: 'Dues', path: '/dues', adminOnly: true },
   { label: 'Job Board', path: '/jobs' },
   { label: 'Alumni', path: '/alumni' },
   { label: 'Resources', path: '/resources' },
@@ -25,9 +27,13 @@ const moreNavItems = [
   { label: 'Help', path: '/help' },
 ];
 
+import { useAuth } from '@/contexts/AuthContext';
+
 export function MobileNav() {
   const location = useLocation();
-  const isMoreActive = moreNavItems.some(item => location.pathname === item.path);
+  const { isAdminOrOfficer } = useAuth();
+  const filteredMoreItems = moreNavItems.filter(item => !item.adminOnly || isAdminOrOfficer);
+  const isMoreActive = filteredMoreItems.some(item => location.pathname === item.path);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border pb-safe md:hidden">
@@ -66,7 +72,7 @@ export function MobileNav() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 mb-2">
-            {moreNavItems.map(({ label, path }) => (
+            {filteredMoreItems.map(({ label, path }) => (
               <DropdownMenuItem key={path} asChild>
                 <Link
                   to={path}

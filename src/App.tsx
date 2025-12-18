@@ -9,7 +9,6 @@ import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import MembersPage from "./pages/MembersPage";
 import EventsPage from "./pages/EventsPage";
-
 import PointsPage from "./pages/PointsPage";
 import JobsPage from "./pages/JobsPage";
 import AlumniPage from "./pages/AlumniPage";
@@ -18,6 +17,8 @@ import CoffeeChatsPage from "./pages/CoffeeChatsPage";
 import EOPPage from "./pages/EOPPage";
 import SettingsPage from "./pages/SettingsPage";
 import HelpPage from "./pages/HelpPage";
+import ServiceHoursPage from "./pages/ServiceHoursPage";
+import DuesPage from "./pages/DuesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,13 +35,14 @@ const App = () => (
             <Route path="/" element={<HomePage />} />
             <Route path="/members" element={<MembersPage />} />
             <Route path="/events" element={<EventsPage />} />
-            
             <Route path="/points" element={<PointsPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/alumni" element={<AlumniPage />} />
             <Route path="/resources" element={<ResourcesPage />} />
             <Route path="/coffee-chats" element={<CoffeeChatsPage />} />
             <Route path="/eop" element={<EOPPage />} />
+            <Route path="/service-hours" element={<ServiceHoursPage />} />
+            <Route path="/dues" element={<DuesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/help" element={<HelpPage />} />
             <Route path="*" element={<NotFound />} />
