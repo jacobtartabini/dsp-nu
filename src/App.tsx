@@ -7,19 +7,12 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
-import MembersPage from "./pages/MembersPage";
+import PeoplePage from "./pages/PeoplePage";
 import EventsPage from "./pages/EventsPage";
-import PointsPage from "./pages/PointsPage";
-import JobsPage from "./pages/JobsPage";
-import AlumniPage from "./pages/AlumniPage";
-import ResourcesPage from "./pages/ResourcesPage";
-import CoffeeChatsPage from "./pages/CoffeeChatsPage";
-import EOPPage from "./pages/EOPPage";
+import DevelopmentPage from "./pages/DevelopmentPage";
+import ChapterPage from "./pages/ChapterPage";
 import SettingsPage from "./pages/SettingsPage";
 import HelpPage from "./pages/HelpPage";
-import ServiceHoursPage from "./pages/ServiceHoursPage";
-import DuesPage from "./pages/DuesPage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,17 +27,10 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/" element={<HomePage />} />
-            <Route path="/members" element={<MembersPage />} />
+            <Route path="/people" element={<PeoplePage />} />
             <Route path="/events" element={<EventsPage />} />
-            <Route path="/points" element={<PointsPage />} />
-            <Route path="/jobs" element={<JobsPage />} />
-            <Route path="/alumni" element={<AlumniPage />} />
-            <Route path="/resources" element={<ResourcesPage />} />
-            <Route path="/coffee-chats" element={<CoffeeChatsPage />} />
-            <Route path="/eop" element={<EOPPage />} />
-            <Route path="/service-hours" element={<ServiceHoursPage />} />
-            <Route path="/dues" element={<DuesPage />} />
-            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/development" element={<DevelopmentPage />} />
+            <Route path="/chapter" element={<ChapterPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/help" element={<HelpPage />} />
             <Route path="*" element={<NotFound />} />
