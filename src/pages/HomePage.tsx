@@ -9,7 +9,7 @@ import { UpcomingTimeline } from '@/components/home/UpcomingTimeline';
 export default function HomePage() {
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-5 sm:space-y-6">
         {/* Welcome Section */}
         <WelcomeHeader />
 
@@ -17,7 +17,7 @@ export default function HomePage() {
         <AlertsSection />
 
         {/* Primary Cards */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
           <UpcomingEventCard />
           <StandingCard />
         </div>

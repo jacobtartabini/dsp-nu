@@ -14,23 +14,24 @@ export function MobileNav() {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border pb-safe md:hidden">
-      <div className="flex items-center justify-around h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border/50 pb-safe md:hidden">
+      <div className="flex items-center justify-around h-14">
         {navItems.map(({ icon: Icon, label, path }) => {
-          const isActive = location.pathname === path;
+          const isActive = location.pathname === path || 
+            (path !== '/' && location.pathname.startsWith(path));
           return (
             <Link
               key={path}
               to={path}
               className={cn(
-                'flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors',
+                'flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-all active:scale-95',
                 isActive
                   ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                  : 'text-muted-foreground'
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span className="text-xs font-medium">{label}</span>
+              <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5px]")} />
+              <span className={cn("text-[10px]", isActive ? "font-semibold" : "font-medium")}>{label}</span>
             </Link>
           );
         })}

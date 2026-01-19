@@ -104,89 +104,91 @@ export default function PeoplePage() {
         {myProfile && <ProfileEditDialog profile={myProfile} />}
       </PageHeader>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="members" className="gap-2">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5 sm:space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2 h-10 sm:h-9">
+          <TabsTrigger value="members" className="gap-1.5 sm:gap-2 text-sm">
             <Users className="h-4 w-4" />
             Members
           </TabsTrigger>
-          <TabsTrigger value="alumni" className="gap-2">
+          <TabsTrigger value="alumni" className="gap-1.5 sm:gap-2 text-sm">
             <GraduationCap className="h-4 w-4" />
             Alumni
           </TabsTrigger>
         </TabsList>
 
         {/* Members Tab */}
-        <TabsContent value="members" className="space-y-6">
+        <TabsContent value="members" className="space-y-4 sm:space-y-6">
           {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2">
             <Card>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-primary" />
+              <CardContent className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{totalMembers}</p>
-                  <p className="text-sm text-muted-foreground">Total Members</p>
+                  <p className="text-xl sm:text-2xl font-bold">{totalMembers}</p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground">Total Members</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-emerald-500" />
+              <CardContent className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{activeMembers}</p>
-                  <p className="text-sm text-muted-foreground">Active Members</p>
+                  <p className="text-xl sm:text-2xl font-bold">{activeMembers}</p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground">Active</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name, email, or major..."
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
-                className="pl-9"
+                className="pl-9 h-10 sm:h-9"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="new_member">New Member</SelectItem>
-                <SelectItem value="pnm">PNM</SelectItem>
-              </SelectContent>
-            </Select>
-            {isAdminOrOfficer && (
-              <Button variant="outline" onClick={handleExportMembers}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            )}
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-40 h-10 sm:h-9">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="new_member">New Member</SelectItem>
+                  <SelectItem value="pnm">PNM</SelectItem>
+                </SelectContent>
+              </Select>
+              {isAdminOrOfficer && (
+                <Button variant="outline" onClick={handleExportMembers} className="h-10 sm:h-9 px-3">
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-2">Export</span>
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Members Grid */}
           {membersLoading ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <Card key={i} className="h-48 animate-pulse bg-muted" />
+                <Card key={i} className="h-40 sm:h-48 animate-pulse bg-muted" />
               ))}
             </div>
           ) : filteredMembers.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {filteredMembers.map((member) => (
                 <div key={member.id} className="relative group">
-                  <div onClick={() => handleMemberClick(member)} className="cursor-pointer">
+                  <div onClick={() => handleMemberClick(member)} className="cursor-pointer active:scale-[0.98] transition-transform">
                     <MemberCard member={member} />
                   </div>
                   {isAdmin && (
@@ -213,80 +215,82 @@ export default function PeoplePage() {
         </TabsContent>
 
         {/* Alumni Tab */}
-        <TabsContent value="alumni" className="space-y-6">
+        <TabsContent value="alumni" className="space-y-4 sm:space-y-6">
           {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2">
             <Card>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <GraduationCap className="h-5 w-5 text-primary" />
+              <CardContent className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{totalAlumni}</p>
-                  <p className="text-sm text-muted-foreground">Alumni</p>
+                  <p className="text-xl sm:text-2xl font-bold">{totalAlumni}</p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground">Alumni</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-emerald-500" />
+              <CardContent className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{uniqueCompanies}</p>
-                  <p className="text-sm text-muted-foreground">Companies</p>
+                  <p className="text-xl sm:text-2xl font-bold">{uniqueCompanies}</p>
+                  <p className="text-[10px] sm:text-sm text-muted-foreground">Companies</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name, company, or title..."
                 value={alumniSearch}
                 onChange={(e) => setAlumniSearch(e.target.value)}
-                className="pl-9"
+                className="pl-9 h-10 sm:h-9"
               />
             </div>
-            <Select value={industryFilter} onValueChange={setIndustryFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All Industries" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Industries</SelectItem>
-                {industries.map((industry) => (
-                  <SelectItem key={industry} value={industry!}>
-                    {industry}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              {isAdminOrOfficer && (
-                <>
-                  <AlumniImportDialog />
-                  <AlumniForm />
-                </>
-              )}
-              <Button variant="outline" onClick={handleExportAlumni}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
+            <div className="flex gap-2 flex-wrap">
+              <Select value={industryFilter} onValueChange={setIndustryFilter}>
+                <SelectTrigger className="w-full sm:w-40 h-10 sm:h-9">
+                  <SelectValue placeholder="All Industries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Industries</SelectItem>
+                  {industries.map((industry) => (
+                    <SelectItem key={industry} value={industry!}>
+                      {industry}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="flex gap-2">
+                {isAdminOrOfficer && (
+                  <>
+                    <AlumniImportDialog />
+                    <AlumniForm />
+                  </>
+                )}
+                <Button variant="outline" onClick={handleExportAlumni} className="h-10 sm:h-9 px-3">
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-2">Export</span>
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Alumni Grid */}
           {alumniLoading ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <Card key={i} className="h-48 animate-pulse bg-muted" />
+                <Card key={i} className="h-40 sm:h-48 animate-pulse bg-muted" />
               ))}
             </div>
           ) : filteredAlumni.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {filteredAlumni.map((alum) => (
                 <AlumniCard key={alum.id} alumni={alum} />
               ))}
