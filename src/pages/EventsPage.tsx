@@ -87,48 +87,48 @@ export default function EventsPage() {
       <PageHeader title="Events" description="Chapter events and calendar">
         <div className="flex gap-2 flex-wrap">
           {user && (
-            <Button variant="outline" size="sm" onClick={() => setShowScanner(true)} className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowScanner(true)} className="gap-2 h-9">
               <QrCode className="h-4 w-4" />
-              Scan QR
+              <span className="hidden sm:inline">Scan</span> QR
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={handleExportCalendar} className="gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportCalendar} className="gap-2 h-9">
             <Download className="h-4 w-4" />
-            Export ICS
+            <span className="hidden sm:inline">Export</span> ICS
           </Button>
           {isAdminOrOfficer && <EventForm />}
         </div>
       </PageHeader>
 
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search events..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className="pl-9 h-10 sm:h-9"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 self-start">
             <Button
               variant={view === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setView('list')}
-              className="gap-2"
+              className="gap-2 h-9"
             >
               <List className="h-4 w-4" />
-              List
+              <span className="hidden xs:inline">List</span>
             </Button>
             <Button
               variant={view === 'calendar' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setView('calendar')}
-              className="gap-2"
+              className="gap-2 h-9"
             >
               <Calendar className="h-4 w-4" />
-              Calendar
+              <span className="hidden xs:inline">Calendar</span>
             </Button>
           </div>
         </div>
@@ -145,9 +145,9 @@ export default function EventsPage() {
           />
         ) : (
           <Tabs defaultValue="upcoming" className="w-full">
-            <TabsList>
-              <TabsTrigger value="upcoming">Upcoming ({upcomingEvents.length})</TabsTrigger>
-              <TabsTrigger value="past">Past ({pastEvents.length})</TabsTrigger>
+            <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex">
+              <TabsTrigger value="upcoming" className="text-xs sm:text-sm">Upcoming ({upcomingEvents.length})</TabsTrigger>
+              <TabsTrigger value="past" className="text-xs sm:text-sm">Past ({pastEvents.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="upcoming" className="mt-4">
               {upcomingEvents.length === 0 ? (

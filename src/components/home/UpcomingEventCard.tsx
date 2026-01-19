@@ -37,8 +37,8 @@ export function UpcomingEventCard() {
   if (!nextEvent) {
     return (
       <Card className="border-border/60">
-        <CardContent className="p-5">
-          <div className="flex items-center gap-2 text-muted-foreground mb-3">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex items-center gap-2 text-muted-foreground mb-2 sm:mb-3">
             <Calendar className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">Next Event</span>
           </div>
@@ -69,41 +69,41 @@ export function UpcomingEventCard() {
 
   return (
     <Link to="/events">
-      <Card className="border-border/60 hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer group">
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between mb-3">
+      <Card className="border-border/60 hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer group active:scale-[0.98]">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-4 w-4" />
               <span className="text-xs font-medium uppercase tracking-wider">Next Event</span>
             </div>
             {nextEvent.is_required && (
-              <Badge variant="destructive" className="text-xs px-2 py-0.5">Required</Badge>
+              <Badge variant="destructive" className="text-[10px] px-1.5 py-0.5">Required</Badge>
             )}
           </div>
           
-          <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+          <h3 className="font-semibold text-foreground mb-1.5 sm:mb-2 group-hover:text-primary transition-colors line-clamp-2 text-sm sm:text-base">
             {nextEvent.title}
           </h3>
           
-          <div className="space-y-1.5 text-sm text-muted-foreground mb-3">
+          <div className="space-y-1 text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-3.5 w-3.5" />
+              <Clock className="h-3.5 w-3.5 shrink-0" />
               <span>{dateLabel} at {format(eventDate, 'h:mm a')}</span>
             </div>
             {nextEvent.location && (
               <div className="flex items-center gap-2">
-                <MapPin className="h-3.5 w-3.5" />
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{nextEvent.location}</span>
               </div>
             )}
           </div>
 
           <div className="flex items-center justify-between">
-            <Badge variant="outline" className="capitalize text-xs">
+            <Badge variant="outline" className="capitalize text-[10px] sm:text-xs">
               {nextEvent.category}
             </Badge>
             {rsvpStatus ? (
-              <Badge variant="outline" className={rsvpStatus.className}>
+              <Badge variant="outline" className={`text-[10px] sm:text-xs ${rsvpStatus.className}`}>
                 {rsvpStatus.label}
               </Badge>
             ) : (

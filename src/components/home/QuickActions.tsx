@@ -13,16 +13,16 @@ export function QuickActions() {
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Quick Actions</span>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
         {actions.map(({ icon: Icon, label, path }) => (
-          <Link key={label} to={path}>
+          <Link key={label} to={path} className="w-full sm:w-auto">
             <Button 
               variant="outline" 
               size="sm" 
-              className="h-9 gap-2 bg-card hover:bg-muted/50 border-border/60"
+              className="h-10 sm:h-9 gap-2 w-full sm:w-auto bg-card hover:bg-muted/50 border-border/60 text-sm"
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="truncate">{label}</span>
             </Button>
           </Link>
         ))}

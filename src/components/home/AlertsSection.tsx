@@ -34,14 +34,14 @@ export function AlertsSection() {
       
       <div className="space-y-2">
         {hasActiveVoting && (
-          <Link to="/chapter" className="block">
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors">
+          <Link to="/eop" className="block">
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 active:scale-[0.98] transition-all">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Vote className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">EOP Voting is Open</p>
-                <p className="text-xs text-muted-foreground">Cast your vote for new member candidates</p>
+                <p className="text-xs text-muted-foreground line-clamp-1">Cast your vote for new member candidates</p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
@@ -50,7 +50,7 @@ export function AlertsSection() {
         
         {pendingCoffeeChats.length > 0 && (
           <Link to="/development" className="block">
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-category-brotherhood/20 bg-category-brotherhood/5 hover:bg-category-brotherhood/10 transition-colors">
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-category-brotherhood/20 bg-category-brotherhood/5 hover:bg-category-brotherhood/10 active:scale-[0.98] transition-all">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-category-brotherhood/10 flex items-center justify-center">
                 <Coffee className="h-4 w-4 text-category-brotherhood" />
               </div>
@@ -58,7 +58,7 @@ export function AlertsSection() {
                 <p className="text-sm font-medium text-foreground">
                   {pendingCoffeeChats.length} Pending Coffee Chat{pendingCoffeeChats.length !== 1 ? 's' : ''}
                 </p>
-                <p className="text-xs text-muted-foreground">Waiting for confirmation</p>
+                <p className="text-xs text-muted-foreground line-clamp-1">Waiting for confirmation</p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>

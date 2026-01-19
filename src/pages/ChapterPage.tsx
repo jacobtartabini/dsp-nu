@@ -184,14 +184,14 @@ export default function ChapterPage() {
         description="Your standing, contributions, and chapter governance"
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="w-full max-w-md">
-          <TabsTrigger value="standing" className="flex-1 gap-2">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5 sm:space-y-6">
+        <TabsList className="w-full max-w-md grid grid-cols-2 h-10 sm:h-9">
+          <TabsTrigger value="standing" className="flex-1 gap-1.5 sm:gap-2 text-xs sm:text-sm">
             <Award className="h-4 w-4" />
             My Standing
           </TabsTrigger>
           {isAdminOrOfficer && (
-            <TabsTrigger value="admin" className="flex-1 gap-2">
+            <TabsTrigger value="admin" className="flex-1 gap-1.5 sm:gap-2 text-xs sm:text-sm">
               <Shield className="h-4 w-4" />
               Admin
             </TabsTrigger>
@@ -199,37 +199,37 @@ export default function ChapterPage() {
         </TabsList>
 
         {/* Standing Tab - Clean Personal Dashboard */}
-        <TabsContent value="standing" className="space-y-6">
+        <TabsContent value="standing" className="space-y-4 sm:space-y-6">
           {/* Status Banner */}
           <Card className={`border-2 ${isGoodStanding ? 'border-green-500/30 bg-green-500/5' : 'border-amber-500/30 bg-amber-500/5'}`}>
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+            <CardContent className="py-3 sm:py-4 px-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   {isGoodStanding ? (
-                    <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                     </div>
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <Target className="h-5 w-5 text-amber-600" />
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                      <Target className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
                     </div>
                   )}
-                  <div>
-                    <p className="font-semibold">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm sm:text-base">
                       {isGoodStanding ? 'You\'re in Good Standing!' : 'Keep Going!'}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
                       {isGoodStanding 
                         ? 'All semester requirements met' 
-                        : `${POINTS_REQUIREMENT - myTotal > 0 ? `${POINTS_REQUIREMENT - myTotal} points` : ''} ${POINTS_REQUIREMENT - myTotal > 0 && SERVICE_HOURS_REQUIREMENT - myVerifiedHours > 0 ? 'and ' : ''}${SERVICE_HOURS_REQUIREMENT - myVerifiedHours > 0 ? `${(SERVICE_HOURS_REQUIREMENT - myVerifiedHours).toFixed(1)} service hours` : ''} to go`
+                        : `${POINTS_REQUIREMENT - myTotal > 0 ? `${POINTS_REQUIREMENT - myTotal} pts` : ''} ${POINTS_REQUIREMENT - myTotal > 0 && SERVICE_HOURS_REQUIREMENT - myVerifiedHours > 0 ? '& ' : ''}${SERVICE_HOURS_REQUIREMENT - myVerifiedHours > 0 ? `${(SERVICE_HOURS_REQUIREMENT - myVerifiedHours).toFixed(1)} hrs` : ''} to go`
                       }
                     </p>
                   </div>
                 </div>
                 {myRank > 0 && (
-                  <div className="text-right hidden sm:block">
-                    <p className="text-2xl font-bold text-primary">#{myRank}</p>
-                    <p className="text-xs text-muted-foreground">Chapter Rank</p>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xl sm:text-2xl font-bold text-primary">#{myRank}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Rank</p>
                   </div>
                 )}
               </div>
@@ -237,21 +237,21 @@ export default function ChapterPage() {
           </Card>
 
           {/* Progress Cards */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
             {/* Points Progress */}
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 px-4 pt-4 sm:px-6 sm:pt-6">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base font-medium flex items-center gap-2">
+                  <CardTitle className="text-sm sm:text-base font-medium flex items-center gap-2">
                     <Trophy className="h-4 w-4 text-primary" />
                     Points
                   </CardTitle>
-                  <span className="text-2xl font-bold">{myTotal}</span>
+                  <span className="text-xl sm:text-2xl font-bold">{myTotal}</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+              <CardContent className="space-y-3 sm:space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Progress to {POINTS_REQUIREMENT}</span>
                     <span className="font-medium">{Math.round(pointsProgress)}%</span>
                   </div>
@@ -259,11 +259,11 @@ export default function ChapterPage() {
                 </div>
                 
                 {/* Category Breakdown - Compact */}
-                <div className="grid grid-cols-4 gap-2 pt-2">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                   {categories.slice(0, 4).map(cat => (
                     <div key={cat} className="text-center">
-                      <div className="text-lg font-semibold">{myByCategory[cat] || 0}</div>
-                      <div className="text-[10px] text-muted-foreground capitalize">{cat}</div>
+                      <div className="text-base sm:text-lg font-semibold">{myByCategory[cat] || 0}</div>
+                      <div className="text-[9px] sm:text-[10px] text-muted-foreground capitalize truncate">{cat}</div>
                     </div>
                   ))}
                 </div>

@@ -25,7 +25,7 @@ export function UpcomingTimeline() {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5 sm:space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-4 w-4" />
@@ -39,32 +39,32 @@ export function UpcomingTimeline() {
         </Link>
       </div>
       
-      <div className="space-y-1">
+      <div className="space-y-0.5 sm:space-y-1">
         {upcomingEvents.map((event, index) => (
           <Link key={event.id} to="/events">
-            <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
-              <div className="flex-shrink-0 w-16 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-muted/50 active:bg-muted/70 transition-colors group">
+              <div className="flex-shrink-0 w-14 sm:w-16 text-[11px] sm:text-xs text-muted-foreground">
                 {formatEventDate(event.start_time)}
               </div>
               
-              <div className="w-px h-8 bg-border relative">
+              <div className="w-px h-7 sm:h-8 bg-border relative">
                 <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rounded-full bg-primary/60" />
               </div>
               
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                <p className="text-xs sm:text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
                   {event.title}
                 </p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
+                <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                  <Clock className="h-2.5 sm:h-3 w-2.5 sm:w-3" />
                   {format(new Date(event.start_time), 'h:mm a')}
                   {event.is_required && (
-                    <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4">Req</Badge>
+                    <Badge variant="destructive" className="text-[9px] sm:text-[10px] px-1 py-0 h-3.5 sm:h-4">Req</Badge>
                   )}
                 </div>
               </div>
               
-              <Badge variant="outline" className="capitalize text-[10px] flex-shrink-0">
+              <Badge variant="outline" className="capitalize text-[9px] sm:text-[10px] flex-shrink-0 hidden xs:block">
                 {event.category}
               </Badge>
             </div>

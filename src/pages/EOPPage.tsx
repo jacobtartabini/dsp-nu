@@ -90,14 +90,14 @@ export default function EOPPage() {
         </Card>
       )}
 
-      <Tabs defaultValue="voting" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="voting" className="gap-2">
+      <Tabs defaultValue="voting" className="space-y-5 sm:space-y-6">
+        <TabsList className="w-full max-w-md grid grid-cols-2 h-10 sm:h-9">
+          <TabsTrigger value="voting" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
             <Vote className="h-4 w-4" />
             Voting
           </TabsTrigger>
           {isAdminOrOfficer && (
-            <TabsTrigger value="admin" className="gap-2">
+            <TabsTrigger value="admin" className="gap-1.5 sm:gap-2 text-xs sm:text-sm">
               <Settings className="h-4 w-4" />
               Admin
             </TabsTrigger>
@@ -105,40 +105,40 @@ export default function EOPPage() {
         </TabsList>
 
         {/* Voting Tab */}
-        <TabsContent value="voting" className="space-y-6">
+        <TabsContent value="voting" className="space-y-4 sm:space-y-6">
           {/* Quick Stats for VP */}
           {isVPChapterOps && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
               <Card>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
+                <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{totalCandidates}</p>
-                    <p className="text-xs text-muted-foreground">Total PNMs</p>
+                    <p className="text-lg sm:text-2xl font-bold">{totalCandidates}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Total PNMs</p>
                   </div>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                    <UserCheck className="h-5 w-5 text-emerald-600" />
+                <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{votedCount}</p>
-                    <p className="text-xs text-muted-foreground">Voted On</p>
+                    <p className="text-lg sm:text-2xl font-bold">{votedCount}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Voted On</p>
                   </div>
                 </CardContent>
               </Card>
-              <Card className="hidden md:block">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-                    <Vote className="h-5 w-5 text-amber-600" />
+              <Card className="col-span-2 sm:col-span-1">
+                <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                    <Vote className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{totalCandidates - votedCount}</p>
-                    <p className="text-xs text-muted-foreground">Remaining</p>
+                    <p className="text-lg sm:text-2xl font-bold">{totalCandidates - votedCount}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Remaining</p>
                   </div>
                 </CardContent>
               </Card>
@@ -147,7 +147,7 @@ export default function EOPPage() {
 
           {/* Candidate Cards */}
           {candidates && candidates.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {/* Show active candidate first */}
               {activeCandidate && (
                 <EOPVotingCard
@@ -187,11 +187,11 @@ export default function EOPPage() {
 
         {/* Admin Tab */}
         {isAdminOrOfficer && (
-          <TabsContent value="admin" className="space-y-6">
-            <div className="flex justify-between items-center">
+          <TabsContent value="admin" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
               <div>
-                <h2 className="text-lg font-semibold">Manage PNMs</h2>
-                <p className="text-sm text-muted-foreground">Add, edit, or remove PNM candidates</p>
+                <h2 className="text-base sm:text-lg font-semibold">Manage PNMs</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">Add, edit, or remove PNM candidates</p>
               </div>
               <div className="flex items-center gap-2">
                 <EOPImportDialog />
@@ -200,7 +200,7 @@ export default function EOPPage() {
             </div>
 
             {candidates && candidates.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                 {candidates.map((candidate) => {
                   const counts = voteCounts?.[candidate.id];
                   const yesVotes = counts?.yes || 0;
