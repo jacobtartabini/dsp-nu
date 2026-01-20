@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ThumbsUp, ThumbsDown, Hand, CheckCircle2, Lock, Unlock, Users, RotateCcw } from 'lucide-react';
-import { useMyVoteForCandidate, useCastVoteRealtime, useToggleReady, useToggleVotingRealtime, useClearVotes } from '@/hooks/useEOPRealtime';
+import { ThumbsUp, ThumbsDown, Hand, CheckCircle2, Lock, Unlock, Users, RotateCcw, RefreshCw } from 'lucide-react';
+import { useMyVoteForCandidate, useCastVoteRealtime, useToggleReady, useToggleVotingRealtime, useClearVotes, useChangeVote } from '@/hooks/useEOPRealtime';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Tables } from '@/integrations/supabase/types';
 import {
@@ -38,15 +39,24 @@ export function EOPVotingCard({
   const { user } = useAuth();
   const { data: myVote, isLoading: voteLoading } = useMyVoteForCandidate(candidate.id);
   const castVote = useCastVoteRealtime();
+  const changeVote = useChangeVote();
   const toggleReady = useToggleReady();
   const toggleVoting = useToggleVotingRealtime();
   const clearVotes = useClearVotes();
+
+  const [isChangingVote, setIsChangingVote] = useState(false);
 
   const isReady = readyCount?.userIds.includes(user?.id || '') || false;
   const hasVoted = !!myVote;
 
   const handleVote = (vote: 'yes' | 'no') => {
     castVote.mutate({ candidateId: candidate.id, vote });
+  };
+
+  const handleChangeVote = (vote: 'yes' | 'no') => {
+    changeVote.mutate({ candidateId: candidate.id, vote }, {
+      onSuccess: () => setIsChangingVote(false),
+    });
   };
 
   const handleToggleReady = () => {
@@ -138,9 +148,72 @@ export function EOPVotingCard({
                 </div>
               </>
             ) : hasVoted ? (
-              <div className="flex items-center justify-center gap-2 py-4 bg-muted/50 rounded-lg">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                <span className="font-medium">Thanks for voting!</span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2 py-3 bg-muted/50 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  <span className="font-medium">
+                    You voted: <span className={myVote.vote === 'yes' ? 'text-emerald-600' : 'text-red-600'}>{myVote.vote === 'yes' ? 'Yes' : 'No'}</span>
+                  </span>
+                </div>
+                
+                {/* Change Vote UI */}
+                {isChangingVote ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-center text-muted-foreground">Select your new vote:</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        variant="outline"
+                        className="h-12 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 dark:border-emerald-800 dark:hover:bg-emerald-900/30"
+                        onClick={() => handleChangeVote('yes')}
+                        disabled={changeVote.isPending}
+                      >
+                        <ThumbsUp className="h-4 w-4 mr-2 text-emerald-600" />
+                        <span className="text-emerald-600 font-medium">Yes</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-12 border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:hover:bg-red-900/30"
+                        onClick={() => handleChangeVote('no')}
+                        disabled={changeVote.isPending}
+                      >
+                        <ThumbsDown className="h-4 w-4 mr-2 text-red-600" />
+                        <span className="text-red-600 font-medium">No</span>
+                      </Button>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => setIsChangingVote(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="w-full">
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Change Vote
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Change your vote?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          You currently voted <strong className={myVote.vote === 'yes' ? 'text-emerald-600' : 'text-red-600'}>{myVote.vote === 'yes' ? 'Yes' : 'No'}</strong> for {candidate.first_name} {candidate.last_name}. 
+                          Are you sure you want to change your vote?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => setIsChangingVote(true)}>
+                          Change Vote
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
             ) : null}
           </div>

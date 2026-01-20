@@ -254,6 +254,45 @@ export function useCastVoteRealtime() {
   });
 }
 
+// Change vote mutation (update existing vote)
+export function useChangeVote() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ candidateId, vote }: { candidateId: string; vote: VoteType }) => {
+      if (!user) throw new Error('Not authenticated');
+      
+      // Delete existing vote first
+      const { error: deleteError } = await supabase
+        .from('eop_votes')
+        .delete()
+        .eq('voter_id', user.id)
+        .eq('candidate_id', candidateId);
+
+      if (deleteError) throw deleteError;
+      
+      // Insert new vote
+      const { data, error } = await supabase
+        .from('eop_votes')
+        .insert({ voter_id: user.id, candidate_id: candidateId, vote })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-eop-vote-realtime'] });
+      queryClient.invalidateQueries({ queryKey: ['eop-vote-counts-realtime'] });
+      toast.success('Vote changed successfully!');
+    },
+    onError: (error) => {
+      toast.error('Failed to change vote: ' + error.message);
+    },
+  });
+}
+
 // Toggle voting open/close (VP only)
 export function useToggleVotingRealtime() {
   const queryClient = useQueryClient();
