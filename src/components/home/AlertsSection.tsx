@@ -6,7 +6,7 @@ import { useMyCoffeeChats } from '@/hooks/useCoffeeChats';
 
 export function AlertsSection() {
   const { data: myCoffeeChats } = useMyCoffeeChats();
-  const pendingCoffeeChats = myCoffeeChats?.filter(c => c.status === 'pending') || [];
+  const pendingCoffeeChats = myCoffeeChats?.filter(c => c.status === 'emailed') || [];
   
   const { data: eopCandidates } = useQuery({
     queryKey: ['eop-voting-open'],

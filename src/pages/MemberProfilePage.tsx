@@ -107,7 +107,7 @@ export default function MemberProfilePage() {
   const totalServiceHours = serviceHours?.reduce((sum, h) => sum + Number(h.hours), 0) ?? 0;
   const verifiedServiceHours = serviceHours?.filter(h => h.verified).reduce((sum, h) => sum + Number(h.hours), 0) ?? 0;
 
-  const confirmedChats = coffeeChats?.filter(c => c.status === 'confirmed').length ?? 0;
+  const confirmedChats = coffeeChats?.filter(c => c.status === 'completed').length ?? 0;
 
   // Get partner names for coffee chats
   const getChatPartnerName = (chat: any) => {
@@ -388,8 +388,8 @@ export default function MemberProfilePage() {
                           </div>
                         </div>
                         <Badge 
-                          variant={chat.status === 'confirmed' ? 'default' : 
-                                   chat.status === 'pending' ? 'secondary' : 'destructive'}
+                          variant={chat.status === 'completed' ? 'default' : 
+                                   chat.status === 'emailed' ? 'secondary' : 'outline'}
                         >
                           {chat.status}
                         </Badge>
