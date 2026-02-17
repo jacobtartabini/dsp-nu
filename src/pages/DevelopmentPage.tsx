@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, Search, Coffee, FolderOpen, FileText, Folder, AlertCircle } from 'lucide-react';
+import { Briefcase, Search, Coffee, FolderOpen, FileText, Folder, AlertCircle, LayoutDashboard } from 'lucide-react';
 import { useJobs, useJobBookmarks } from '@/hooks/useJobs';
 import { useMyCoffeeChats, useCoffeeChats } from '@/hooks/useCoffeeChats';
 import { useResources } from '@/hooks/useResources';
@@ -17,6 +17,7 @@ import { JobForm } from '@/components/jobs/JobForm';
 import { JobCard } from '@/components/jobs/JobCard';
 import { CoffeeChatForm } from '@/components/coffee-chats/CoffeeChatForm';
 import { CoffeeChatCard } from '@/components/coffee-chats/CoffeeChatCard';
+import { CoffeeChatDashboard } from '@/components/coffee-chats/CoffeeChatDashboard';
 import { ResourceForm } from '@/components/resources/ResourceForm';
 import { ResourceCard } from '@/components/resources/ResourceCard';
 
@@ -77,12 +78,15 @@ export default function DevelopmentPage() {
   };
 
   // Coffee chat stats
-  const confirmedCount = myChats?.filter(c => c.status === 'confirmed').length || 0;
-  const pendingCount = myChats?.filter(c => c.status === 'pending').length || 0;
+  const completedCount = myChats?.filter(c => c.status === 'completed').length || 0;
+  const scheduledCount = myChats?.filter(c => c.status === 'scheduled').length || 0;
+  const emailedCount = myChats?.filter(c => c.status === 'emailed').length || 0;
   const totalRequired = 50;
 
+  const isVPNewMemberDev = profile?.positions?.includes('VP of New Member Development');
+
   const pendingConfirmations = myChats?.filter(
-    c => c.status === 'pending' && c.partner_id === user?.id
+    c => c.status === 'emailed' && c.partner_id === user?.id
   ) || [];
 
   // Resource filtering
@@ -124,7 +128,7 @@ export default function DevelopmentPage() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full max-w-lg grid-cols-3">
+        <TabsList className={`grid w-full max-w-lg ${isVPNewMemberDev ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <TabsTrigger value="jobs" className="gap-2">
             <Briefcase className="h-4 w-4" />
             Jobs
@@ -133,6 +137,12 @@ export default function DevelopmentPage() {
             <Coffee className="h-4 w-4" />
             Coffee Chats
           </TabsTrigger>
+          {isVPNewMemberDev && (
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+          )}
           <TabsTrigger value="resources" className="gap-2">
             <FolderOpen className="h-4 w-4" />
             Resources
@@ -235,20 +245,20 @@ export default function DevelopmentPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">Your Progress</h3>
                     <p className="text-muted-foreground">
-                      {confirmedCount} of {totalRequired} confirmed
+                      {completedCount} of {totalRequired} completed
                     </p>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold text-primary">
-                      {Math.round((confirmedCount / totalRequired) * 100)}%
+                      {Math.round((completedCount / totalRequired) * 100)}%
                     </div>
-                    <p className="text-sm text-muted-foreground">{pendingCount} pending</p>
+                    <p className="text-sm text-muted-foreground">{emailedCount} emailed · {scheduledCount} scheduled</p>
                   </div>
                 </div>
                 <div className="mt-4 h-2 bg-muted rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-primary transition-all"
-                    style={{ width: `${Math.min((confirmedCount / totalRequired) * 100, 100)}%` }}
+                    style={{ width: `${Math.min((completedCount / totalRequired) * 100, 100)}%` }}
                   />
                 </div>
               </CardContent>
@@ -342,6 +352,13 @@ export default function DevelopmentPage() {
             )}
           </Tabs>
         </TabsContent>
+
+        {/* VP Dashboard Tab */}
+        {isVPNewMemberDev && (
+          <TabsContent value="dashboard" className="space-y-6">
+            <CoffeeChatDashboard />
+          </TabsContent>
+        )}
 
         {/* Resources Tab */}
         <TabsContent value="resources" className="space-y-6">

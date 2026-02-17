@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import type { Tables, TablesInsert } from '@/integrations/supabase/types';
+import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 type CoffeeChat = Tables<'coffee_chats'>;
 type CoffeeChatInsert = TablesInsert<'coffee_chats'>;
@@ -74,6 +74,32 @@ export function useCreateCoffeeChat() {
   });
 }
 
+export function useUpdateCoffeeChat() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<TablesUpdate<'coffee_chats'>>) => {
+      const { data, error } = await supabase
+        .from('coffee_chats')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['coffee-chats'] });
+      queryClient.invalidateQueries({ queryKey: ['my-coffee-chats'] });
+      toast.success('Coffee chat updated!');
+    },
+    onError: (error) => {
+      toast.error('Failed to update: ' + error.message);
+    },
+  });
+}
+
 export function useConfirmCoffeeChat() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -84,7 +110,7 @@ export function useConfirmCoffeeChat() {
       
       const { data, error } = await supabase
         .from('coffee_chats')
-        .update({ status: 'confirmed', confirmed_by: user.id })
+        .update({ status: 'scheduled' as any, confirmed_by: user.id })
         .eq('id', chatId)
         .select()
         .single();
@@ -110,7 +136,7 @@ export function useRejectCoffeeChat() {
     mutationFn: async (chatId: string) => {
       const { data, error } = await supabase
         .from('coffee_chats')
-        .update({ status: 'rejected' })
+        .update({ status: 'completed' as any })
         .eq('id', chatId)
         .select()
         .single();
@@ -121,10 +147,10 @@ export function useRejectCoffeeChat() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coffee-chats'] });
       queryClient.invalidateQueries({ queryKey: ['my-coffee-chats'] });
-      toast.success('Coffee chat rejected');
+      toast.success('Coffee chat marked as completed');
     },
     onError: (error) => {
-      toast.error('Failed to reject: ' + error.message);
+      toast.error('Failed to update: ' + error.message);
     },
   });
 }

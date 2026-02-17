@@ -15,6 +15,7 @@ import { useMembers } from '@/hooks/useMembers';
 const coffeeChatSchema = z.object({
   partner_id: z.string().min(1, 'Please select a member'),
   chat_date: z.string().min(1, 'Date is required'),
+  status: z.string().default('emailed'),
   notes: z.string().optional(),
 });
 
@@ -30,6 +31,7 @@ export function CoffeeChatForm() {
     defaultValues: {
       partner_id: '',
       chat_date: new Date().toISOString().split('T')[0],
+      status: 'emailed',
       notes: '',
     },
   });
@@ -38,6 +40,7 @@ export function CoffeeChatForm() {
     await createChat.mutateAsync({
       partner_id: values.partner_id,
       chat_date: values.chat_date,
+      status: values.status as any,
       notes: values.notes || null,
     });
     form.reset();
@@ -76,6 +79,29 @@ export function CoffeeChatForm() {
                           {member.first_name} {member.last_name}
                         </SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Stage</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="emailed">Emailed</SelectItem>
+                      <SelectItem value="scheduled">Scheduled</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
