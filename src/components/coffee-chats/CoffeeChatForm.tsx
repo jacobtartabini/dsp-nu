@@ -66,7 +66,7 @@ export function CoffeeChatForm() {
               name="partner_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Met with</FormLabel>
+                  <FormLabel>Member</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
