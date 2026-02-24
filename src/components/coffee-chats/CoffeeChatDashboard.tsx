@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, CalendarCheck, CheckCircle2, Users, Plus, Trash2, Target, Clock, TrendingUp } from 'lucide-react';
-import { format, isPast, differenceInDays } from 'date-fns';
+import { Mail, CalendarCheck, CheckCircle2, Plus, Trash2, Target, Clock, TrendingUp, ArrowUpDown, Users } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 import { useCoffeeChats } from '@/hooks/useCoffeeChats';
 import { useMembers } from '@/hooks/useMembers';
+import { useAuth } from '@/contexts/AuthContext';
 import { useCoffeeChatMilestones, useCreateMilestone, useDeleteMilestone } from '@/hooks/useCoffeeChatMilestones';
 
 const REQUIRED_CHATS = 50;
@@ -28,10 +28,10 @@ function getMilestoneStatus(completed: number, target: number, deadline: string)
   return 'on_track';
 }
 
-const statusColors: Record<MilestoneStatus, string> = {
-  on_track: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/20',
-  warning: 'text-amber-600 bg-amber-500/10 border-amber-500/20',
-  behind: 'text-red-600 bg-red-500/10 border-red-500/20',
+const statusDotColors: Record<MilestoneStatus, string> = {
+  on_track: 'bg-emerald-500',
+  warning: 'bg-amber-500',
+  behind: 'bg-red-500',
 };
 
 const statusLabels: Record<MilestoneStatus, string> = {
@@ -40,13 +40,16 @@ const statusLabels: Record<MilestoneStatus, string> = {
   behind: 'Behind',
 };
 
-const statusDotColors: Record<MilestoneStatus, string> = {
-  on_track: 'bg-emerald-500',
-  warning: 'bg-amber-500',
-  behind: 'bg-red-500',
+const statusBadgeColors: Record<MilestoneStatus, string> = {
+  on_track: 'text-emerald-700 bg-emerald-500/10 border-emerald-500/30',
+  warning: 'text-amber-700 bg-amber-500/10 border-amber-500/30',
+  behind: 'text-red-700 bg-red-500/10 border-red-500/30',
 };
 
+type SortKey = 'name' | 'emailsReceived' | 'chatsScheduled' | 'chatsCompleted' | 'responseRate';
+
 export function CoffeeChatDashboard() {
+  const { profile } = useAuth();
   const { data: allChats, isLoading } = useCoffeeChats();
   const { data: members } = useMembers();
   const { data: milestones } = useCoffeeChatMilestones();
@@ -56,6 +59,12 @@ export function CoffeeChatDashboard() {
   const [milestoneOpen, setMilestoneOpen] = useState(false);
   const [newTarget, setNewTarget] = useState('');
   const [newDeadline, setNewDeadline] = useState('');
+  const [engagementSort, setEngagementSort] = useState<SortKey>('responseRate');
+  const [sortAsc, setSortAsc] = useState(false);
+
+  const isVP = profile?.positions?.includes('VP of New Member Development') ||
+    profile?.positions?.includes('VP of Pledge Education') ||
+    profile?.positions?.includes('VP of New Member Education');
 
   const newMembers = useMemo(() => {
     return members?.filter(m => m.status === 'new_member') || [];
@@ -76,10 +85,8 @@ export function CoffeeChatDashboard() {
       const emailed = memberChats.filter(c => c.status === 'emailed').length;
       const scheduled = memberChats.filter(c => c.status === 'scheduled').length;
       const completed = memberChats.filter(c => c.status === 'completed').length;
-      const total = memberChats.length;
       const progress = Math.round((completed / REQUIRED_CHATS) * 100);
 
-      // Calculate milestone status using next upcoming milestone
       let overallStatus: MilestoneStatus = 'on_track';
       if (milestones && milestones.length > 0) {
         for (const m of milestones) {
@@ -97,18 +104,16 @@ export function CoffeeChatDashboard() {
         emailed,
         scheduled,
         completed,
-        total,
         progress: Math.min(progress, 100),
         status: overallStatus,
       };
     }).sort((a, b) => b.completed - a.completed);
   }, [allChats, newMembers, milestones]);
 
-  // Active member engagement stats
   const activeMemberEngagement = useMemo(() => {
     if (!allChats || !activeMembers.length) return [];
 
-    return activeMembers.map(member => {
+    const data = activeMembers.map(member => {
       const asPartner = allChats.filter(c => c.partner_id === member.user_id);
       const emailsReceived = asPartner.filter(c => c.status === 'emailed' || c.status === 'scheduled' || c.status === 'completed').length;
       const chatsScheduled = asPartner.filter(c => c.status === 'scheduled' || c.status === 'completed').length;
@@ -118,14 +123,24 @@ export function CoffeeChatDashboard() {
       return {
         id: member.id,
         name: `${member.first_name} ${member.last_name}`,
-        pledgeClass: member.pledge_class,
         emailsReceived,
         chatsScheduled,
         chatsCompleted,
         responseRate,
       };
-    }).sort((a, b) => b.responseRate - a.responseRate);
-  }, [allChats, activeMembers]);
+    });
+
+    data.sort((a, b) => {
+      const aVal = a[engagementSort];
+      const bVal = b[engagementSort];
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      return sortAsc ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
+    });
+
+    return data;
+  }, [allChats, activeMembers, engagementSort, sortAsc]);
 
   const handleCreateMilestone = () => {
     if (!newTarget || !newDeadline) return;
@@ -135,8 +150,17 @@ export function CoffeeChatDashboard() {
     );
   };
 
+  const toggleSort = (key: SortKey) => {
+    if (engagementSort === key) {
+      setSortAsc(!sortAsc);
+    } else {
+      setEngagementSort(key);
+      setSortAsc(false);
+    }
+  };
+
   if (isLoading) {
-    return <div className="text-center py-8 text-muted-foreground">Loading dashboard...</div>;
+    return <div className="text-center py-8 text-muted-foreground">Loading...</div>;
   }
 
   const totalCompleted = memberStats.reduce((sum, m) => sum + m.completed, 0);
@@ -145,295 +169,252 @@ export function CoffeeChatDashboard() {
   const behindCount = memberStats.filter(m => m.status === 'behind').length;
 
   return (
-    <div className="space-y-6">
-      {/* Summary Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{newMembers.length}</p>
-              <p className="text-xs text-muted-foreground">New Members</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-              <Mail className="h-5 w-5 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalEmailed}</p>
-              <p className="text-xs text-muted-foreground">Emailed</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-              <CalendarCheck className="h-5 w-5 text-amber-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalScheduled}</p>
-              <p className="text-xs text-muted-foreground">Scheduled</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-              <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalCompleted}</p>
-              <p className="text-xs text-muted-foreground">Completed</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="space-y-8">
+      {/* Compact Summary Bar — replaces large KPI cards */}
+      {isVP && (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+          <span className="font-semibold text-foreground flex items-center gap-1.5">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            {newMembers.length} New Members
+          </span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-muted-foreground flex items-center gap-1">
+            <Mail className="h-3.5 w-3.5" /> {totalEmailed} emailed
+          </span>
+          <span className="text-muted-foreground flex items-center gap-1">
+            <CalendarCheck className="h-3.5 w-3.5" /> {totalScheduled} scheduled
+          </span>
+          <span className="text-muted-foreground flex items-center gap-1">
+            <CheckCircle2 className="h-3.5 w-3.5" /> {totalCompleted} completed
+          </span>
+          {behindCount > 0 && (
+            <Badge variant="destructive" className="text-xs ml-auto">
+              {behindCount} behind
+            </Badge>
+          )}
+        </div>
+      )}
 
-      <Tabs defaultValue="progress" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="progress">New Member Progress</TabsTrigger>
-          <TabsTrigger value="engagement">Active Member Engagement</TabsTrigger>
-          <TabsTrigger value="milestones">Milestones</TabsTrigger>
-        </TabsList>
-
-        {/* New Member Progress Tab */}
-        <TabsContent value="progress">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">New Member Progress</CardTitle>
-              {behindCount > 0 && (
-                <Badge variant="destructive" className="text-xs">
-                  {behindCount} behind schedule
-                </Badge>
-              )}
-            </CardHeader>
-            <CardContent>
-              {memberStats.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">No new members found</p>
-              ) : (
-                <div className="space-y-4">
-                  {memberStats.map(member => (
-                    <div key={member.id} className="space-y-2 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-2.5 w-2.5 rounded-full ${statusDotColors[member.status]}`} />
-                          <div>
-                            <p className="font-medium text-sm">{member.name}</p>
-                            {member.pledgeClass && (
-                              <p className="text-xs text-muted-foreground">{member.pledgeClass}</p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className={`text-[10px] px-1.5 border ${statusColors[member.status]}`}>
-                            {statusLabels[member.status]}
-                          </Badge>
-                          <Badge variant="outline" className="text-blue-600 border-blue-200 text-[10px] px-1.5">
-                            <Mail className="h-3 w-3 mr-0.5" />{member.emailed}
-                          </Badge>
-                          <Badge variant="outline" className="text-amber-600 border-amber-200 text-[10px] px-1.5">
-                            <CalendarCheck className="h-3 w-3 mr-0.5" />{member.scheduled}
-                          </Badge>
-                          <Badge variant="outline" className="text-emerald-600 border-emerald-200 text-[10px] px-1.5">
-                            <CheckCircle2 className="h-3 w-3 mr-0.5" />{member.completed}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Progress value={member.progress} className="flex-1 h-2" />
-                        <span className="text-xs font-medium text-muted-foreground w-16 text-right">
-                          {member.completed}/{REQUIRED_CHATS}
+      {/* New Member Progress — admin only */}
+      {isVP && memberStats.length > 0 && (
+        <section>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+            New Member Progress
+          </h3>
+          <div className="space-y-2">
+            {memberStats.map(member => (
+              <div key={member.id} className="flex items-center gap-4 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
+                <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${statusDotColors[member.status]}`} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="font-semibold text-sm text-foreground truncate">{member.name}</p>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant="outline" className={`text-xs px-2 border ${statusBadgeColors[member.status]}`}>
+                        {statusLabels[member.status]}
+                      </Badge>
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <span className="flex items-center gap-0.5 text-blue-600">
+                          <Mail className="h-3.5 w-3.5" /><span className="font-semibold text-sm">{member.emailed}</span>
+                        </span>
+                        <span className="flex items-center gap-0.5 text-amber-600">
+                          <CalendarCheck className="h-3.5 w-3.5" /><span className="font-semibold text-sm">{member.scheduled}</span>
+                        </span>
+                        <span className="flex items-center gap-0.5 text-emerald-600">
+                          <CheckCircle2 className="h-3.5 w-3.5" /><span className="font-semibold text-sm">{member.completed}</span>
                         </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Active Member Engagement Tab */}
-        <TabsContent value="engagement">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Active Member Response Rates
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {activeMemberEngagement.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">No active members found</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Member</TableHead>
-                        <TableHead className="text-center">Emails Received</TableHead>
-                        <TableHead className="text-center">Scheduled</TableHead>
-                        <TableHead className="text-center">Completed</TableHead>
-                        <TableHead className="text-center">Response Rate</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {activeMemberEngagement.map(member => (
-                        <TableRow key={member.id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium text-sm">{member.name}</p>
-                              {member.pledgeClass && (
-                                <p className="text-xs text-muted-foreground">{member.pledgeClass}</p>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant="outline" className="text-blue-600 border-blue-200">
-                              {member.emailsReceived}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant="outline" className="text-amber-600 border-amber-200">
-                              {member.chatsScheduled}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant="outline" className="text-emerald-600 border-emerald-200">
-                              {member.chatsCompleted}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all ${
-                                    member.responseRate >= 75 ? 'bg-emerald-500' :
-                                    member.responseRate >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                                  }`}
-                                  style={{ width: `${member.responseRate}%` }}
-                                />
-                              </div>
-                              <span className={`text-xs font-semibold ${
-                                member.responseRate >= 75 ? 'text-emerald-600' :
-                                member.responseRate >= 50 ? 'text-amber-600' : 'text-red-600'
-                              }`}>
-                                {member.responseRate}%
-                              </span>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Milestones Tab */}
-        <TabsContent value="milestones">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                Coffee Chat Milestones
-              </CardTitle>
-              <Dialog open={milestoneOpen} onOpenChange={setMilestoneOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Milestone
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-sm">
-                  <DialogHeader>
-                    <DialogTitle>Set Milestone</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium">Target Chats</label>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 20"
-                        value={newTarget}
-                        onChange={(e) => setNewTarget(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Deadline</label>
-                      <Input
-                        type="date"
-                        value={newDeadline}
-                        onChange={(e) => setNewDeadline(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setMilestoneOpen(false)}>Cancel</Button>
-                      <Button onClick={handleCreateMilestone} disabled={createMilestone.isPending}>
-                        {createMilestone.isPending ? 'Saving...' : 'Save'}
-                      </Button>
-                    </div>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </CardHeader>
-            <CardContent>
-              {!milestones || milestones.length === 0 ? (
-                <div className="text-center py-8">
-                  <Clock className="h-10 w-10 mx-auto text-muted-foreground/50 mb-2" />
-                  <p className="text-sm text-muted-foreground">No milestones set yet</p>
-                  <p className="text-xs text-muted-foreground mt-1">Create milestones to track new member deadlines</p>
+                  <div className="flex items-center gap-3">
+                    <Progress value={member.progress} className="flex-1 h-1.5" />
+                    <span className="text-xs font-medium text-muted-foreground w-14 text-right">
+                      {member.completed}/{REQUIRED_CHATS}
+                    </span>
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {milestones.map(milestone => {
-                    const daysLeft = differenceInDays(new Date(milestone.deadline), new Date());
-                    const isOverdue = daysLeft < 0;
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
-                    return (
-                      <div key={milestone.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                        <div className="flex items-center gap-4">
-                          <div className={`h-12 w-12 rounded-full flex items-center justify-center text-lg font-bold ${
-                            isOverdue ? 'bg-red-500/10 text-red-600' : 'bg-primary/10 text-primary'
-                          }`}>
-                            {milestone.target_count}
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">
-                              {milestone.target_count} chats by {format(new Date(milestone.deadline), 'MMM d, yyyy')}
-                            </p>
-                            <p className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
-                              {isOverdue
-                                ? `${Math.abs(daysLeft)} days overdue`
-                                : `${daysLeft} days remaining`
-                              }
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={() => deleteMilestone.mutate(milestone.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    );
-                  })}
+      {/* Milestones — admin only */}
+      {isVP && (
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Milestones
+            </h3>
+            <Dialog open={milestoneOpen} onOpenChange={setMilestoneOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Set Milestone</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Target Chats</label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 20"
+                      value={newTarget}
+                      onChange={(e) => setNewTarget(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Deadline</label>
+                    <Input
+                      type="date"
+                      value={newDeadline}
+                      onChange={(e) => setNewDeadline(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setMilestoneOpen(false)}>Cancel</Button>
+                    <Button onClick={handleCreateMilestone} disabled={createMilestone.isPending}>
+                      {createMilestone.isPending ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {!milestones || milestones.length === 0 ? (
+            <div className="text-center py-6 border rounded-lg bg-card">
+              <Clock className="h-8 w-8 mx-auto text-muted-foreground/40 mb-1.5" />
+              <p className="text-sm text-muted-foreground">No milestones set</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {milestones.map(milestone => {
+                const daysLeft = differenceInDays(new Date(milestone.deadline), new Date());
+                const isOverdue = daysLeft < 0;
+
+                return (
+                  <div key={milestone.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center text-base font-bold ${
+                        isOverdue ? 'bg-red-500/10 text-red-600' : 'bg-primary/10 text-primary'
+                      }`}>
+                        {milestone.target_count}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">
+                          {milestone.target_count} chats by {format(new Date(milestone.deadline), 'MMM d, yyyy')}
+                        </p>
+                        <p className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}>
+                          {isOverdue ? `${Math.abs(daysLeft)} days overdue` : `${daysLeft} days remaining`}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => deleteMilestone.mutate(milestone.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Active Member Engagement — visible to everyone */}
+      <section>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2 mb-3">
+          <TrendingUp className="h-4 w-4" />
+          Active Member Engagement
+        </h3>
+        <Card>
+          <CardContent className="p-0">
+            {activeMemberEngagement.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">No engagement data yet</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>
+                        <button onClick={() => toggleSort('name')} className="flex items-center gap-1 hover:text-foreground transition-colors">
+                          Member <ArrowUpDown className="h-3 w-3" />
+                        </button>
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <button onClick={() => toggleSort('emailsReceived')} className="flex items-center gap-1 mx-auto hover:text-foreground transition-colors">
+                          Emails <ArrowUpDown className="h-3 w-3" />
+                        </button>
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <button onClick={() => toggleSort('chatsScheduled')} className="flex items-center gap-1 mx-auto hover:text-foreground transition-colors">
+                          Scheduled <ArrowUpDown className="h-3 w-3" />
+                        </button>
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <button onClick={() => toggleSort('chatsCompleted')} className="flex items-center gap-1 mx-auto hover:text-foreground transition-colors">
+                          Completed <ArrowUpDown className="h-3 w-3" />
+                        </button>
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <button onClick={() => toggleSort('responseRate')} className="flex items-center gap-1 mx-auto hover:text-foreground transition-colors">
+                          Response Rate <ArrowUpDown className="h-3 w-3" />
+                        </button>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {activeMemberEngagement.map(member => (
+                      <TableRow key={member.id}>
+                        <TableCell>
+                          <p className="font-semibold text-foreground">{member.name}</p>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className="font-semibold text-sm">{member.emailsReceived}</span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className="font-semibold text-sm">{member.chatsScheduled}</span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className="font-semibold text-sm">{member.chatsCompleted}</span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all ${
+                                  member.responseRate >= 75 ? 'bg-emerald-500' :
+                                  member.responseRate >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                                }`}
+                                style={{ width: `${member.responseRate}%` }}
+                              />
+                            </div>
+                            <span className={`text-sm font-bold ${
+                              member.responseRate >= 75 ? 'text-emerald-600' :
+                              member.responseRate >= 50 ? 'text-amber-600' : 'text-red-600'
+                            }`}>
+                              {member.responseRate}%
+                            </span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, Search, Coffee, FolderOpen, FileText, Folder, AlertCircle, LayoutDashboard } from 'lucide-react';
+import { Briefcase, Search, Coffee, FolderOpen, FileText, Folder, AlertCircle } from 'lucide-react';
 import { useJobs, useJobBookmarks } from '@/hooks/useJobs';
 import { useMyCoffeeChats, useCoffeeChats } from '@/hooks/useCoffeeChats';
 import { useResources } from '@/hooks/useResources';
@@ -53,7 +53,6 @@ export default function DevelopmentPage() {
   const [resourceSearch, setResourceSearch] = useState('');
   const [activeFolder, setActiveFolder] = useState('all');
 
-  // Coffee chat eligibility
   const isEligible = profile?.status === 'new_member';
 
   // Job filtering
@@ -63,29 +62,22 @@ export default function DevelopmentPage() {
       job.company.toLowerCase().includes(jobSearch.toLowerCase()) ||
       job.description?.toLowerCase().includes(jobSearch.toLowerCase()) ||
       job.tags?.some(tag => tag.toLowerCase().includes(jobSearch.toLowerCase()));
-    
     const matchesType = typeFilter === 'all' || job.job_type === typeFilter;
-    
     return matchesSearch && matchesType;
   }) ?? [];
 
   const bookmarkedJobs = filteredJobs.filter(job => bookmarks.includes(job.id));
 
-  // Member name helper
   const getMemberName = (userId: string) => {
     const member = members?.find(m => m.user_id === userId);
     return member ? `${member.first_name} ${member.last_name}` : 'Unknown';
   };
 
-  // Coffee chat stats
+  // Coffee chat stats for personal progress
   const completedCount = myChats?.filter(c => c.status === 'completed').length || 0;
   const scheduledCount = myChats?.filter(c => c.status === 'scheduled').length || 0;
   const emailedCount = myChats?.filter(c => c.status === 'emailed').length || 0;
   const totalRequired = 50;
-
-  const isVPNewMemberDev = profile?.positions?.includes('VP of New Member Development') || 
-    profile?.positions?.includes('VP of Pledge Education') ||
-    profile?.positions?.includes('VP of New Member Education');
 
   const pendingConfirmations = myChats?.filter(
     c => c.status === 'emailed' && c.partner_id === user?.id
@@ -104,9 +96,7 @@ export default function DevelopmentPage() {
       const matchesSearch = resourceSearch === '' || 
         resource.title.toLowerCase().includes(resourceSearch.toLowerCase()) ||
         resource.description?.toLowerCase().includes(resourceSearch.toLowerCase());
-      
       const matchesFolder = activeFolder === 'all' || resource.folder === activeFolder;
-      
       return matchesSearch && matchesFolder;
     });
   }, [resources, resourceSearch, activeFolder]);
@@ -130,7 +120,7 @@ export default function DevelopmentPage() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className={`grid w-full max-w-lg ${isVPNewMemberDev ? 'grid-cols-4' : 'grid-cols-3'}`}>
+        <TabsList className="grid w-full max-w-lg grid-cols-3">
           <TabsTrigger value="jobs" className="gap-2">
             <Briefcase className="h-4 w-4" />
             Jobs
@@ -139,12 +129,6 @@ export default function DevelopmentPage() {
             <Coffee className="h-4 w-4" />
             Coffee Chats
           </TabsTrigger>
-          {isVPNewMemberDev && (
-            <TabsTrigger value="dashboard" className="gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
-            </TabsTrigger>
-          )}
           <TabsTrigger value="resources" className="gap-2">
             <FolderOpen className="h-4 w-4" />
             Resources
@@ -233,31 +217,32 @@ export default function DevelopmentPage() {
           )}
         </TabsContent>
 
-        {/* Coffee Chats Tab */}
-        <TabsContent value="coffee-chats" className="space-y-6">
-          <div className="flex justify-end">
+        {/* Coffee Chats Tab — unified vertical flow */}
+        <TabsContent value="coffee-chats" className="space-y-8">
+          {/* Personal progress + log form */}
+          <div className="flex items-center justify-between">
+            <div />
             {isEligible && <CoffeeChatForm />}
           </div>
 
-          {/* Progress Card */}
           {isEligible && (
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <CardContent className="p-6">
+            <Card className="border-primary/20">
+              <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground">Your Progress</h3>
-                    <p className="text-muted-foreground">
+                    <h3 className="font-semibold text-foreground">Your Progress</h3>
+                    <p className="text-sm text-muted-foreground">
                       {completedCount} of {totalRequired} completed
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-3xl font-bold text-primary">
+                    <div className="text-2xl font-bold text-primary">
                       {Math.round((completedCount / totalRequired) * 100)}%
                     </div>
-                    <p className="text-sm text-muted-foreground">{emailedCount} emailed · {scheduledCount} scheduled</p>
+                    <p className="text-xs text-muted-foreground">{emailedCount} emailed · {scheduledCount} scheduled</p>
                   </div>
                 </div>
-                <div className="mt-4 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-primary transition-all"
                     style={{ width: `${Math.min((completedCount / totalRequired) * 100, 100)}%` }}
@@ -292,48 +277,24 @@ export default function DevelopmentPage() {
             </Card>
           )}
 
-          <Tabs defaultValue="mine" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="mine">My Chats</TabsTrigger>
-              {isAdminOrOfficer && <TabsTrigger value="all">All Chats</TabsTrigger>}
-            </TabsList>
+          {/* My Chats / All Chats */}
+          <section>
+            <Tabs defaultValue="mine" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="mine">My Chats</TabsTrigger>
+                {isAdminOrOfficer && <TabsTrigger value="all">All Chats</TabsTrigger>}
+              </TabsList>
 
-            <TabsContent value="mine">
-              {chatsLoading ? (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {[1, 2, 3].map(i => (
-                    <Card key={i} className="h-32 animate-pulse bg-muted" />
-                  ))}
-                </div>
-              ) : myChats && myChats.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {myChats.map((chat) => (
-                    <CoffeeChatCard
-                      key={chat.id}
-                      chat={chat}
-                      partnerName={getMemberName(chat.partner_id)}
-                      initiatorName={getMemberName(chat.initiator_id)}
-                      isOfficer={isAdminOrOfficer}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  icon={Coffee}
-                  title="No coffee chats yet"
-                  description={isEligible 
-                    ? "Log your first coffee chat with a chapter member!"
-                    : "Coffee chat tracking is available for New Members."
-                  }
-                />
-              )}
-            </TabsContent>
-
-            {isAdminOrOfficer && (
-              <TabsContent value="all">
-                {allChats && allChats.length > 0 ? (
+              <TabsContent value="mine">
+                {chatsLoading ? (
                   <div className="grid gap-4 md:grid-cols-2">
-                    {allChats.map((chat) => (
+                    {[1, 2, 3].map(i => (
+                      <Card key={i} className="h-32 animate-pulse bg-muted" />
+                    ))}
+                  </div>
+                ) : myChats && myChats.length > 0 ? (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {myChats.map((chat) => (
                       <CoffeeChatCard
                         key={chat.id}
                         chat={chat}
@@ -346,21 +307,44 @@ export default function DevelopmentPage() {
                 ) : (
                   <EmptyState
                     icon={Coffee}
-                    title="No coffee chats logged"
-                    description="Coffee chats from all members will appear here."
+                    title="No coffee chats yet"
+                    description={isEligible 
+                      ? "Log your first coffee chat with a chapter member!"
+                      : "Coffee chat tracking is available for New Members."
+                    }
                   />
                 )}
               </TabsContent>
-            )}
-          </Tabs>
-        </TabsContent>
 
-        {/* VP Dashboard Tab */}
-        {isVPNewMemberDev && (
-          <TabsContent value="dashboard" className="space-y-6">
-            <CoffeeChatDashboard />
-          </TabsContent>
-        )}
+              {isAdminOrOfficer && (
+                <TabsContent value="all">
+                  {allChats && allChats.length > 0 ? (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {allChats.map((chat) => (
+                        <CoffeeChatCard
+                          key={chat.id}
+                          chat={chat}
+                          partnerName={getMemberName(chat.partner_id)}
+                          initiatorName={getMemberName(chat.initiator_id)}
+                          isOfficer={isAdminOrOfficer}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState
+                      icon={Coffee}
+                      title="No coffee chats logged"
+                      description="Coffee chats from all members will appear here."
+                    />
+                  )}
+                </TabsContent>
+              )}
+            </Tabs>
+          </section>
+
+          {/* Dashboard sections inline — visible to all, admin sections gated inside */}
+          <CoffeeChatDashboard />
+        </TabsContent>
 
         {/* Resources Tab */}
         <TabsContent value="resources" className="space-y-6">
@@ -392,7 +376,6 @@ export default function DevelopmentPage() {
             {isAdminOrOfficer && <ResourceForm />}
           </div>
 
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
