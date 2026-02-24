@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Mail, CalendarCheck, CheckCircle2, Calendar, Edit2, Save, X, ArrowRight, Trash2 } from 'lucide-react';
+import { Mail, CalendarCheck, CheckCircle2, Calendar, Edit2, Check, X, ArrowRight, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useUpdateCoffeeChat, useDeleteCoffeeChat } from '@/hooks/useCoffeeChats';
 import { useAuth } from '@/contexts/AuthContext';
@@ -91,7 +91,7 @@ export function CoffeeChatCard({ chat, partnerName, initiatorName, isOfficer }: 
             <p className="font-medium text-sm text-foreground">Editing Coffee Chat</p>
             <div className="flex gap-1">
               <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSave} disabled={updateChat.isPending}>
-                <Save className="h-4 w-4" />
+                <Check className="h-4 w-4" />
               </Button>
               <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setIsEditing(false)}>
                 <X className="h-4 w-4" />
