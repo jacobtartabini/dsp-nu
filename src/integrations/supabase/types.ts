@@ -956,7 +956,6 @@ export type Database = {
           file_url: string | null
           folder: string
           id: string
-          is_approved: boolean
           is_officer_only: boolean
           title: string
           updated_at: string
@@ -969,7 +968,6 @@ export type Database = {
           file_url?: string | null
           folder?: string
           id?: string
-          is_approved?: boolean
           is_officer_only?: boolean
           title: string
           updated_at?: string
@@ -982,7 +980,6 @@ export type Database = {
           file_url?: string | null
           folder?: string
           id?: string
-          is_approved?: boolean
           is_officer_only?: boolean
           title?: string
           updated_at?: string
@@ -1062,7 +1059,7 @@ export type Database = {
       is_admin_or_officer: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "officer" | "member" | "developer"
+      app_role: "admin" | "officer" | "member"
       coffee_chat_status: "emailed" | "scheduled" | "completed"
       eop_vote: "yes" | "no" | "abstain"
       event_category:
@@ -1202,7 +1199,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "officer", "member", "developer"],
+      app_role: ["admin", "officer", "member"],
       coffee_chat_status: ["emailed", "scheduled", "completed"],
       eop_vote: ["yes", "no", "abstain"],
       event_category: [
