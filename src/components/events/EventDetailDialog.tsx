@@ -37,7 +37,6 @@ export function EventDetailDialog({ event, open, onOpenChange, onOpenAttendance 
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Date & Time */}
           <div className="flex items-center gap-3 text-sm">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span>{format(startDate, 'EEEE, MMMM d, yyyy')}</span>
@@ -51,7 +50,6 @@ export function EventDetailDialog({ event, open, onOpenChange, onOpenAttendance 
             </span>
           </div>
 
-          {/* Location */}
           {event.location && (
             <div className="flex items-center gap-3 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -59,7 +57,6 @@ export function EventDetailDialog({ event, open, onOpenChange, onOpenAttendance 
             </div>
           )}
 
-          {/* Points & Required */}
           <div className="flex items-center gap-3">
             {event.points_value > 0 && (
               <Badge variant="secondary">{event.points_value} points</Badge>
@@ -67,14 +64,8 @@ export function EventDetailDialog({ event, open, onOpenChange, onOpenAttendance 
             {event.is_required && (
               <Badge variant="destructive">Required</Badge>
             )}
-            {event.attendance_open && !isPast && (
-              <Badge variant="outline" className="text-emerald-600 border-emerald-600">
-                Check-in Open
-              </Badge>
-            )}
           </div>
 
-          {/* Description */}
           {event.description && (
             <div className="pt-2 border-t">
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">
@@ -83,7 +74,6 @@ export function EventDetailDialog({ event, open, onOpenChange, onOpenAttendance 
             </div>
           )}
 
-          {/* RSVP Section - For upcoming events */}
           {!isPast && user && (
             <div className="pt-4 border-t">
               <h4 className="text-sm font-medium mb-3">RSVP</h4>
@@ -91,12 +81,11 @@ export function EventDetailDialog({ event, open, onOpenChange, onOpenAttendance 
             </div>
           )}
 
-          {/* Admin Actions */}
           {isAdminOrOfficer && onOpenAttendance && (
             <div className="pt-4 border-t flex gap-2">
               <Button onClick={onOpenAttendance} variant="outline" className="gap-2">
                 <Users className="h-4 w-4" />
-                View Attendance
+                Record Attendance
               </Button>
             </div>
           )}

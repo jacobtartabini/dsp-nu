@@ -15,7 +15,18 @@ import { supabase } from '@/integrations/supabase/client';
 
 type Profile = Tables<'profiles'>;
 
-const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei'] as const;
+const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei', 'new_member'] as const;
+
+const categoryLabels: Record<string, string> = {
+  chapter: 'Chapter',
+  rush: 'Rush',
+  fundraising: 'Fundraising',
+  service: 'Service',
+  brotherhood: 'Brotherhood',
+  professionalism: 'Prof.',
+  dei: 'DE&I',
+  new_member: 'New Member',
+};
 
 interface MemberProfileDialogProps {
   member: Profile | null;
@@ -27,13 +38,11 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
   const { data: members } = useMembers();
   const { user, isAdminOrOfficer } = useAuth();
   
-  // Check if current user can see detailed info (admin/officer or own profile)
   const canViewDetails = isAdminOrOfficer || user?.id === member?.user_id;
   
   const { data: memberPoints } = useMemberPoints(member?.user_id ?? '');
   const { data: serviceHours } = useServiceHours(member?.user_id);
   
-  // Fetch dues for this member
   const { data: dues } = useQuery({
     queryKey: ['member-dues', member?.user_id],
     queryFn: async () => {
@@ -61,18 +70,29 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
   const bigMember = members?.find(m => m.id === extendedProfile.big);
   const littleMember = members?.find(m => m.id === extendedProfile.little);
   
-  // Calculate points totals
-  const totalPoints = memberPoints?.reduce((sum, p) => sum + p.points, 0) ?? 0;
+  // Calculate points by category (from points_ledger = attendance + manual grants)
   const pointsByCategory = memberPoints?.reduce((acc, p) => {
     acc[p.category] = (acc[p.category] || 0) + p.points;
     return acc;
   }, {} as Record<string, number>) ?? {};
-  
-  // Calculate service hours
-  const totalServiceHours = serviceHours?.reduce((sum, h) => sum + Number(h.hours), 0) ?? 0;
+
+  // Service hours -> service points: 3 verified hours = 1 service point
   const verifiedServiceHours = serviceHours?.filter(h => h.verified).reduce((sum, h) => sum + Number(h.hours), 0) ?? 0;
+  const servicePointsFromHours = Math.floor(verifiedServiceHours / 3);
   
-  // Check current semester dues
+  // Total service points = from attendance/manual + from service hours
+  const totalServicePoints = (pointsByCategory['service'] || 0) + servicePointsFromHours;
+  
+  // Override service in the display
+  const displayPointsByCategory = { ...pointsByCategory, service: totalServicePoints };
+  
+  const totalPoints = categories.reduce((sum, cat) => {
+    if (cat === 'service') return sum + totalServicePoints;
+    return sum + (pointsByCategory[cat] || 0);
+  }, 0);
+  
+  const totalServiceHours = serviceHours?.reduce((sum, h) => sum + Number(h.hours), 0) ?? 0;
+  
   const currentSemester = new Date().getMonth() < 6 ? 'Spring' : 'Fall';
   const currentYear = new Date().getFullYear();
   const semesterKey = `${currentSemester} ${currentYear}`;
@@ -80,7 +100,7 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="sr-only">Member Profile</DialogTitle>
         </DialogHeader>
@@ -203,10 +223,9 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
             </div>
           )}
 
-          {/* Points, Dues, Service Hours - Only visible to admin/officer or profile owner */}
+          {/* Points, Dues, Service Hours */}
           {canViewDetails && (
             <div className="space-y-4">
-              {/* Points Summary */}
               <Card className="border-primary/20 bg-primary/5">
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-2 mb-3">
@@ -215,17 +234,21 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
                     <Badge variant="secondary" className="ml-auto">{totalPoints} total</Badge>
                   </div>
                   <div className="grid grid-cols-4 gap-2">
-                    {categories.slice(0, 4).map(cat => (
+                    {categories.map(cat => (
                       <div key={cat} className="text-center">
-                        <CategoryBadge category={cat} />
-                        <div className="text-sm font-medium mt-1">{pointsByCategory[cat] || 0}</div>
+                        <div className="text-[10px] font-medium text-muted-foreground">{categoryLabels[cat]}</div>
+                        <div className="text-sm font-bold mt-0.5">{displayPointsByCategory[cat] || 0}</div>
                       </div>
                     ))}
                   </div>
+                  {servicePointsFromHours > 0 && (
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      Service includes {servicePointsFromHours} pt{servicePointsFromHours !== 1 ? 's' : ''} from {verifiedServiceHours} verified hours (3h = 1pt)
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
-              {/* Dues & Service Hours */}
               <div className="grid grid-cols-2 gap-3">
                 <Card>
                   <CardContent className="pt-4">
@@ -236,8 +259,8 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
                     <div className="flex items-center gap-2">
                       {hasPaidDues ? (
                         <>
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm text-green-600">Paid</span>
+                          <CheckCircle className="h-4 w-4 text-emerald-500" />
+                          <span className="text-sm text-emerald-600">Paid</span>
                         </>
                       ) : (
                         <>

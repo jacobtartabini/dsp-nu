@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -7,18 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar, List, Download, Search, QrCode } from 'lucide-react';
+import { Calendar, List, Download, Search } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
-import { useCheckIn } from '@/hooks/useAttendance';
 import { useAuth } from '@/contexts/AuthContext';
 import { EventForm } from '@/components/events/EventForm';
 import { EventCard } from '@/components/events/EventCard';
 import { CalendarView } from '@/components/events/CalendarView';
 import { EventDetailDialog } from '@/components/events/EventDetailDialog';
-import { QRCodeDisplay } from '@/components/attendance/QRCodeDisplay';
-import { QRScanner } from '@/components/attendance/QRScanner';
-import { AttendanceList } from '@/components/attendance/AttendanceList';
-import { ManualAttendanceDialog } from '@/components/attendance/ManualAttendanceDialog';
+import { ManualAttendance } from '@/components/attendance/ManualAttendance';
 import { downloadICS } from '@/lib/calendar';
 import { Tables } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
@@ -26,33 +21,15 @@ import { useToast } from '@/hooks/use-toast';
 type Event = Tables<'events'>;
 
 export default function EventsPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [view, setView] = useState<'list' | 'calendar'>('calendar');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [showScanner, setShowScanner] = useState(false);
   const [showAttendance, setShowAttendance] = useState(false);
   const [showEventDetail, setShowEventDetail] = useState(false);
   
   const { data: events, isLoading } = useEvents();
-  const { user, isAdminOrOfficer } = useAuth();
-  const checkIn = useCheckIn();
+  const { isAdminOrOfficer } = useAuth();
   const { toast } = useToast();
-
-  // Handle QR code check-in from URL
-  useEffect(() => {
-    const checkinEventId = searchParams.get('checkin');
-    if (checkinEventId && user) {
-      checkIn.mutate(
-        { eventId: checkinEventId, userId: user.id },
-        {
-          onSuccess: () => {
-            setSearchParams({});
-          },
-        }
-      );
-    }
-  }, [searchParams, user]);
 
   const filteredEvents = events?.filter(event =>
     event.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -75,23 +52,10 @@ export default function EventsPage() {
     }
   };
 
-  const handleQRScan = (eventId: string) => {
-    if (user) {
-      checkIn.mutate({ eventId, userId: user.id });
-      setShowScanner(false);
-    }
-  };
-
   return (
     <AppLayout>
       <PageHeader title="Events" description="Chapter events and calendar">
         <div className="flex gap-2 flex-wrap">
-          {user && (
-            <Button variant="outline" size="sm" onClick={() => setShowScanner(true)} className="gap-2 h-9">
-              <QrCode className="h-4 w-4" />
-              <span className="hidden sm:inline">Scan</span> QR
-            </Button>
-          )}
           <Button variant="outline" size="sm" onClick={handleExportCalendar} className="gap-2 h-9">
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">Export</span> ICS
@@ -211,13 +175,6 @@ export default function EventsPage() {
         }}
       />
 
-      {/* QR Scanner Dialog */}
-      <Dialog open={showScanner} onOpenChange={setShowScanner}>
-        <DialogContent className="max-w-md">
-          <QRScanner onScan={handleQRScan} onClose={() => setShowScanner(false)} />
-        </DialogContent>
-      </Dialog>
-
       {/* Attendance Dialog */}
       <Dialog open={showAttendance && !!selectedEvent} onOpenChange={(open) => {
         setShowAttendance(open);
@@ -225,16 +182,10 @@ export default function EventsPage() {
       }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedEvent?.title} - Attendance</DialogTitle>
+            <DialogTitle>{selectedEvent?.title} — Record Attendance</DialogTitle>
           </DialogHeader>
-          {selectedEvent && isAdminOrOfficer && (
-            <div className="space-y-4">
-              <div className="flex justify-end">
-                <ManualAttendanceDialog event={selectedEvent} />
-              </div>
-              <QRCodeDisplay event={selectedEvent} />
-              <AttendanceList eventId={selectedEvent.id} eventTitle={selectedEvent.title} />
-            </div>
+          {selectedEvent && (
+            <ManualAttendance event={selectedEvent} />
           )}
         </DialogContent>
       </Dialog>
