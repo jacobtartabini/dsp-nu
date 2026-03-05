@@ -30,9 +30,6 @@ export function EventCard({ event, onOpenAttendance }: EventCardProps) {
               {event.is_required && (
                 <Badge variant="destructive" className="text-xs">Required</Badge>
               )}
-              {event.attendance_open && (
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">Check-in Open</Badge>
-              )}
             </div>
             <CardTitle className="text-lg">{event.title}</CardTitle>
           </div>

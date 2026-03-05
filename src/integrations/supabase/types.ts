@@ -145,6 +145,7 @@ export type Database = {
           excuse_notes: string | null
           id: string
           is_excused: boolean
+          status: string
           user_id: string
         }
         Insert: {
@@ -154,6 +155,7 @@ export type Database = {
           excuse_notes?: string | null
           id?: string
           is_excused?: boolean
+          status?: string
           user_id: string
         }
         Update: {
@@ -163,6 +165,7 @@ export type Database = {
           excuse_notes?: string | null
           id?: string
           is_excused?: boolean
+          status?: string
           user_id?: string
         }
         Relationships: [
