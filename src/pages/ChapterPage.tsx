@@ -94,6 +94,45 @@ export default function ChapterPage() {
   const [servicePhoto, setServicePhoto] = useState<File | null>(null);
   const [servicePhotoPreview, setServicePhotoPreview] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const openCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      streamRef.current = stream;
+      setCameraOpen(true);
+      setTimeout(() => {
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      }, 50);
+    } catch {
+      toast.error('Could not access camera');
+    }
+  }, []);
+
+  const closeCamera = useCallback(() => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    setCameraOpen(false);
+  }, []);
+
+  const capturePhoto = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d')?.drawImage(video, 0, 0);
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        setServicePhoto(file);
+        setServicePhotoPreview(URL.createObjectURL(file));
+      }
+      closeCamera();
+    }, 'image/jpeg', 0.85);
+  }, [closeCamera]);
   const [duesOpen, setDuesOpen] = useState(false);
   const [duesUserId, setDuesUserId] = useState('');
   const [duesAmount, setDuesAmount] = useState('');
