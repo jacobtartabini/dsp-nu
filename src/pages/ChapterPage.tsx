@@ -90,6 +90,9 @@ export default function ChapterPage() {
   const updateSetting = useUpdateChapterSetting();
   const { data: allPaddleSubmissions = [] } = useAllPaddleSubmissions();
   const isVPScholarship = profile?.positions?.includes('VP of Scholarship & Awards') || false;
+  const isVPCommunityService = profile?.positions?.includes('VP of Community Service') || false;
+  const isVPProfessionalActivities = profile?.positions?.includes('VP of Professional Activities') || false;
+  const isPresident = profile?.positions?.includes('President') || false;
 
   const [activeTab, setActiveTab] = useState('jobs');
   const [jobSearch, setJobSearch] = useState('');
