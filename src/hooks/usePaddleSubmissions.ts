@@ -25,7 +25,7 @@ export function useMyPaddleSubmission() {
         .limit(1)
         .maybeSingle();
       if (error) throw error;
-      return data as PaddleSubmission | null;
+      return data as unknown as PaddleSubmission | null;
     },
   });
 }
