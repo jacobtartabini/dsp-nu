@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
+import { MemberStandingDetail } from './MemberStandingDetail';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ export function VPChapterOpsDashboard() {
   const { data: allAttendance = [] } = useAllAttendance();
   const { data: eopVisible } = useChapterSetting('eop_visible');
   const updateSetting = useUpdateChapterSetting();
+  const [selectedMember, setSelectedMember] = useState<{ userId: string; name: string } | null>(null);
 
   const { data: allPoints = [] } = useQuery({
     queryKey: ['all-points'],
@@ -78,6 +80,7 @@ export function VPChapterOpsDashboard() {
 
         return {
           id: member.id,
+          userId: member.user_id,
           name: `${member.first_name} ${member.last_name}`,
           status: member.status,
           totalPts,
@@ -178,7 +181,12 @@ export function VPChapterOpsDashboard() {
                 <TableBody>
                   {memberRows.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell className="sticky left-0 bg-background z-10 font-medium text-sm">{row.name}</TableCell>
+                      <TableCell
+                        className="sticky left-0 bg-background z-10 font-medium text-sm text-primary cursor-pointer hover:underline"
+                        onClick={() => setSelectedMember({ userId: row.userId, name: row.name })}
+                      >
+                        {row.name}
+                      </TableCell>
                       <TableCell className="text-center font-semibold">{row.totalPts}</TableCell>
                       {categories.map(c => (
                         <TableCell key={c} className="text-center text-sm text-muted-foreground">{row.byCategory[c] || 0}</TableCell>
@@ -199,6 +207,15 @@ export function VPChapterOpsDashboard() {
           </ScrollArea>
         </CardContent>
       </Card>
+
+      {selectedMember && (
+        <MemberStandingDetail
+          open={!!selectedMember}
+          onOpenChange={(open) => !open && setSelectedMember(null)}
+          userId={selectedMember.userId}
+          memberName={selectedMember.name}
+        />
+      )}
     </div>
   );
 }
