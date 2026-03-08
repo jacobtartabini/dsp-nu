@@ -101,7 +101,7 @@ export function PDPHome({ isVP, isNewMember, onNavigateToAssignments }: Props) {
     reorderModules.mutate(newModules.map((m, i) => ({ id: m.id, sort_order: i })));
   };
 
-
+  const openAddItem = (moduleId: string, type: 'assignment' | 'resource') => {
     setAddItemModuleId(moduleId);
     setAddItemType(type);
     setItemTitle('');
