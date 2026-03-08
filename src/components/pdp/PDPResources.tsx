@@ -45,6 +45,29 @@ export function PDPResources({ isVP }: Props) {
     );
   };
 
+  const openEdit = (r: PDPResource) => {
+    setEditResource(r);
+    setEditTitle(r.title);
+    setEditDescription(r.description || '');
+    setEditUrl(r.url || '');
+    setEditModuleId(r.module_id || 'none');
+    setEditOpen(true);
+  };
+
+  const handleEdit = () => {
+    if (!editResource || !editTitle) return;
+    updateResource.mutate(
+      {
+        id: editResource.id,
+        title: editTitle,
+        description: editDescription || null,
+        url: editUrl || null,
+        module_id: editModuleId === 'none' ? null : editModuleId,
+      },
+      { onSuccess: () => setEditOpen(false) }
+    );
+  };
+
   if (isLoading) {
     return <div className="text-center py-8 text-muted-foreground">Loading...</div>;
   }
