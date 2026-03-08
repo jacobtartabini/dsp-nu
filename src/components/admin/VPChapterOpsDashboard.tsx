@@ -98,7 +98,15 @@ export function VPChapterOpsDashboard() {
         };
       })
       .sort((a, b) => b.totalPts - a.totalPts);
-  }, [members, allPoints, allHours, allAttendance, totalEvents]);
+
+  const filteredRows = useMemo(() => {
+    return memberRows.filter(row => {
+      const matchesSearch = searchQuery === '' || row.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStanding = standingFilter === 'all' || (standingFilter === 'good' ? row.isGoodStanding : !row.isGoodStanding);
+      return matchesSearch && matchesStanding;
+    });
+  }, [memberRows, searchQuery, standingFilter]);
+
 
   return (
     <div className="space-y-6">
