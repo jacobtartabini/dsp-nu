@@ -186,6 +186,15 @@ export function EventForm({ event, trigger }: EventFormProps) {
             </div>
           </div>
 
+          <div className="flex items-center gap-2">
+            <Switch
+              id="payment_required"
+              checked={formData.payment_required}
+              onCheckedChange={(checked) => setFormData({ ...formData, payment_required: checked })}
+            />
+            <Label htmlFor="payment_required">Requires Dues Payment</Label>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
