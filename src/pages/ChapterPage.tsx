@@ -209,20 +209,57 @@ export default function ChapterPage() {
     exportToCSV(exportData, 'family-points-report');
   };
 
-  const handleLogHours = (e: React.FormEvent) => {
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setServicePhoto(file);
+      setServicePhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const clearPhoto = () => {
+    setServicePhoto(null);
+    if (servicePhotoPreview) URL.revokeObjectURL(servicePhotoPreview);
+    setServicePhotoPreview(null);
+  };
+
+  const handleLogHours = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id || !hours || !description || !serviceDate) return;
+
+    let photo_url: string | undefined;
+
+    if (servicePhoto) {
+      setUploadingPhoto(true);
+      const ext = servicePhoto.name.split('.').pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('service-hours-photos')
+        .upload(path, servicePhoto);
+      setUploadingPhoto(false);
+      if (uploadError) {
+        toast.error('Failed to upload photo');
+        return;
+      }
+      const { data: urlData } = supabase.storage
+        .from('service-hours-photos')
+        .getPublicUrl(path);
+      photo_url = urlData.publicUrl;
+    }
+
     logHours.mutate({
       user_id: user.id,
       hours: parseFloat(hours),
       description,
       service_date: serviceDate,
+      photo_url,
     }, {
       onSuccess: () => {
         setLogHoursOpen(false);
         setHours('');
         setDescription('');
         setServiceDate('');
+        clearPhoto();
       }
     });
   };
