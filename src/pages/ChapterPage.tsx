@@ -918,6 +918,11 @@ export default function ChapterPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
+                          {(entry as any).photo_url && (
+                            <a href={(entry as any).photo_url} target="_blank" rel="noopener noreferrer">
+                              <img src={(entry as any).photo_url} alt="Proof" className="h-8 w-8 rounded object-cover border" />
+                            </a>
+                          )}
                           <p className="text-xs text-muted-foreground max-w-[150px] truncate hidden sm:block">{entry.description}</p>
                           <Button size="sm" onClick={() => handleVerify(entry.id)} disabled={verifyHours.isPending}>
                             <CheckCircle className="h-4 w-4 mr-1" />Verify
