@@ -200,6 +200,28 @@ export function VPChapterOpsDashboard() {
                 <SelectItem value="at_risk">At Risk</SelectItem>
               </SelectContent>
             </Select>
+            <div className="flex gap-1">
+              <Select value={categoryMode} onValueChange={(v) => setCategoryMode(v as 'has' | 'missing')}>
+                <SelectTrigger className="w-[110px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="missing">Missing</SelectItem>
+                  <SelectItem value="has">Has</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as any)}>
+                <SelectTrigger className="w-[160px] h-9">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(c => (
+                    <SelectItem key={c} value={c} className="capitalize">{c === 'dei' ? 'DE&I' : c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
