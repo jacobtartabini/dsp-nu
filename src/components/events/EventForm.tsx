@@ -45,6 +45,7 @@ export function EventForm({ event, trigger }: EventFormProps) {
     location: event?.location || '',
     points_value: event?.points_value || 0,
     is_required: event?.is_required || false,
+    payment_required: (event as any)?.payment_required || false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
