@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { AppLayout } from '@/components/layout/AppLayout';
