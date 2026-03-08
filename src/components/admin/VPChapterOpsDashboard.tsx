@@ -98,6 +98,7 @@ export function VPChapterOpsDashboard() {
         };
       })
       .sort((a, b) => b.totalPts - a.totalPts);
+  }, [members, allPoints, allHours, allAttendance, totalEvents]);
 
   const filteredRows = useMemo(() => {
     return memberRows.filter(row => {
