@@ -39,7 +39,7 @@ export function useAllPaddleSubmissions() {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return (data ?? []) as PaddleSubmission[];
+      return (data ?? []) as unknown as PaddleSubmission[];
     },
   });
 }
