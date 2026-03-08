@@ -90,6 +90,9 @@ export default function ChapterPage() {
   const [hours, setHours] = useState('');
   const [description, setDescription] = useState('');
   const [serviceDate, setServiceDate] = useState('');
+  const [servicePhoto, setServicePhoto] = useState<File | null>(null);
+  const [servicePhotoPreview, setServicePhotoPreview] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [duesOpen, setDuesOpen] = useState(false);
   const [duesUserId, setDuesUserId] = useState('');
   const [duesAmount, setDuesAmount] = useState('');
