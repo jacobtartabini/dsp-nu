@@ -120,7 +120,7 @@ export function VPCommunityServiceDashboard() {
                         <img src={(entry as any).photo_url} alt="Proof" className="h-8 w-8 rounded object-cover border" />
                       </a>
                     )}
-                    <Button size="sm" onClick={() => verifyHours.mutate(entry.id)} disabled={verifyHours.isPending}>
+                    <Button size="sm" onClick={() => verifyHours.mutate({ id: entry.id, verified_by: user?.id ?? '' })} disabled={verifyHours.isPending}>
                       <CheckCircle className="h-4 w-4 mr-1" />Verify
                     </Button>
                   </div>
