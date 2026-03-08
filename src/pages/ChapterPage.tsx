@@ -44,7 +44,7 @@ import { CoffeeChatCard } from '@/components/coffee-chats/CoffeeChatCard';
 import { CoffeeChatDashboard } from '@/components/coffee-chats/CoffeeChatDashboard';
 import { ResourceForm } from '@/components/resources/ResourceForm';
 import { ResourceCard } from '@/components/resources/ResourceCard';
-import { useAllPaddleSubmissions } from '@/hooks/usePaddleSubmissions';
+import { VPChapterOpsDashboard } from '@/components/admin/VPChapterOpsDashboard';
 import { VPChapterOpsDashboard } from '@/components/admin/VPChapterOpsDashboard';
 import { VPCommunityServiceDashboard } from '@/components/admin/VPCommunityServiceDashboard';
 import { VPProfessionalActivitiesDashboard } from '@/components/admin/VPProfessionalActivitiesDashboard';
