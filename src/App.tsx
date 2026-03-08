@@ -18,6 +18,7 @@ import CoffeeChatDirectoryPage from "./pages/CoffeeChatDirectoryPage";
 import SettingsPage from "./pages/SettingsPage";
 import HelpPage from "./pages/HelpPage";
 import NotFound from "./pages/NotFound";
+import OnboardingPage from "./pages/OnboardingPage";
 
 const queryClient = new QueryClient();
 
