@@ -77,7 +77,31 @@ export function PDPHome({ isVP, isNewMember, onNavigateToAssignments }: Props) {
     );
   };
 
-  const openAddItem = (moduleId: string, type: 'assignment' | 'resource') => {
+  const openEditModule = (mod: { id: string; name: string; description: string | null }) => {
+    setEditModuleId(mod.id);
+    setEditModuleName(mod.name);
+    setEditModuleDesc(mod.description || '');
+    setEditModuleOpen(true);
+  };
+
+  const handleEditModule = () => {
+    if (!editModuleName) return;
+    updateModule.mutate(
+      { id: editModuleId, name: editModuleName, description: editModuleDesc || undefined },
+      { onSuccess: () => setEditModuleOpen(false) }
+    );
+  };
+
+  const handleMoveModule = (index: number, direction: 'up' | 'down') => {
+    if (!modules) return;
+    const newModules = [...modules];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= newModules.length) return;
+    [newModules[index], newModules[swapIndex]] = [newModules[swapIndex], newModules[index]];
+    reorderModules.mutate(newModules.map((m, i) => ({ id: m.id, sort_order: i })));
+  };
+
+
     setAddItemModuleId(moduleId);
     setAddItemType(type);
     setItemTitle('');
