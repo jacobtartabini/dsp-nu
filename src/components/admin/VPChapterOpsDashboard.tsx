@@ -180,7 +180,12 @@ export function VPChapterOpsDashboard() {
                 <TableBody>
                   {memberRows.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell className="sticky left-0 bg-background z-10 font-medium text-sm">{row.name}</TableCell>
+                      <TableCell
+                        className="sticky left-0 bg-background z-10 font-medium text-sm text-primary cursor-pointer hover:underline"
+                        onClick={() => setSelectedMember({ userId: row.id.replace(row.id, members.find(m => m.id === row.id)?.user_id || ''), name: row.name })}
+                      >
+                        {row.name}
+                      </TableCell>
                       <TableCell className="text-center font-semibold">{row.totalPts}</TableCell>
                       {categories.map(c => (
                         <TableCell key={c} className="text-center text-sm text-muted-foreground">{row.byCategory[c] || 0}</TableCell>
