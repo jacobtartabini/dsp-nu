@@ -32,6 +32,7 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/" element={<HomePage />} />
               <Route path="/people" element={<PeoplePage />} />
               <Route path="/people/:id" element={<MemberProfilePage />} />
