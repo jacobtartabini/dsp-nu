@@ -202,7 +202,7 @@ export function PDPHome({ isVP, isNewMember, onNavigateToAssignments }: Props) {
         />
       ) : (
         <div className="space-y-4">
-          {modules?.map(mod => {
+          {modules?.map((mod, modIndex) => {
             const modAssignments = getModuleAssignments(mod.id);
             const modResources = getModuleResources(mod.id);
             const isExpanded = expandedModules.has(mod.id);
