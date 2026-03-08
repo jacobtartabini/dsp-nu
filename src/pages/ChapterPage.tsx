@@ -799,11 +799,13 @@ export default function ChapterPage() {
             {isVPProfessionalActivities && <VPProfessionalActivitiesDashboard />}
             {isVPScholarship && <VPScholarshipDashboard />}
             {isPresident && <PresidentDashboard />}
+            {isVPFinance && <VPFinanceDashboard />}
 
             {/* Fallback for admins/developers who don't hold a specific VP position */}
-            {!isVPChapterOps && !isVPCommunityService && !isVPProfessionalActivities && !isVPScholarship && !isPresident && (
+            {!isVPChapterOps && !isVPCommunityService && !isVPProfessionalActivities && !isVPScholarship && !isPresident && !isVPFinance && (
               <div className="space-y-6">
                 <PresidentDashboard />
+                <VPFinanceDashboard />
                 <VPChapterOpsDashboard />
                 <VPCommunityServiceDashboard />
                 <VPProfessionalActivitiesDashboard />
