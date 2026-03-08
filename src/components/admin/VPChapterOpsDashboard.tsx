@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei'] as const;
-const POINTS_REQUIREMENT = 100;
+const POINTS_REQUIREMENT = 7;
 const SERVICE_HOURS_REQUIREMENT = 10;
 
 export function VPChapterOpsDashboard() {

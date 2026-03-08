@@ -51,7 +51,7 @@ import { VPScholarshipDashboard } from '@/components/admin/VPScholarshipDashboar
 import { PresidentDashboard } from '@/components/admin/PresidentDashboard';
 
 const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei', 'new_member'] as const;
-const POINTS_REQUIREMENT = 100;
+const POINTS_REQUIREMENT = 7;
 const SERVICE_HOURS_REQUIREMENT = 10;
 
 const jobTypes = [
