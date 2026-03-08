@@ -21,12 +21,21 @@ export function PDPResources({ isVP }: Props) {
   const { data: modules } = usePDPModules();
   const createResource = useCreatePDPResource();
   const deleteResource = useDeletePDPResource();
+  const updateResource = useUpdatePDPResource();
 
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
   const [moduleId, setModuleId] = useState<string>('none');
+
+  // Edit state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editResource, setEditResource] = useState<PDPResource | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editUrl, setEditUrl] = useState('');
+  const [editModuleId, setEditModuleId] = useState<string>('none');
 
   const handleCreate = () => {
     if (!title) return;
