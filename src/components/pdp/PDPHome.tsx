@@ -52,6 +52,12 @@ export function PDPHome({ isVP, isNewMember, onNavigateToAssignments }: Props) {
   const [itemSubmissionType, setItemSubmissionType] = useState<'text' | 'file' | 'both'>('text');
   const [itemUrl, setItemUrl] = useState('');
 
+  // Edit module dialog
+  const [editModuleOpen, setEditModuleOpen] = useState(false);
+  const [editModuleId, setEditModuleId] = useState('');
+  const [editModuleName, setEditModuleName] = useState('');
+  const [editModuleDesc, setEditModuleDesc] = useState('');
+
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   const toggleModule = (id: string) => {
