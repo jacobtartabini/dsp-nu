@@ -86,9 +86,6 @@ export default function ChapterPage() {
   const approveResource = useApproveResource();
   const { bookmarks, toggleBookmark } = useJobBookmarks(user?.id ?? '');
   const { data: eopVisible } = useChapterSetting('eop_visible');
-  const { data: paddleVisible } = useChapterSetting('paddle_submissions_visible');
-  const updateSetting = useUpdateChapterSetting();
-  const { data: allPaddleSubmissions = [] } = useAllPaddleSubmissions();
   const isVPScholarship = profile?.positions?.includes('VP of Scholarship & Awards') || false;
   const isVPCommunityService = profile?.positions?.includes('VP of Community Service') || false;
   const isVPProfessionalActivities = profile?.positions?.includes('VP of Professional Activities') || false;
