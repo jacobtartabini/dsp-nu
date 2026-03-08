@@ -183,7 +183,7 @@ export function VPChapterOpsDashboard() {
                     <TableRow key={row.id}>
                       <TableCell
                         className="sticky left-0 bg-background z-10 font-medium text-sm text-primary cursor-pointer hover:underline"
-                        onClick={() => setSelectedMember({ userId: row.id.replace(row.id, members.find(m => m.id === row.id)?.user_id || ''), name: row.name })}
+                        onClick={() => setSelectedMember({ userId: row.userId, name: row.name })}
                       >
                         {row.name}
                       </TableCell>
