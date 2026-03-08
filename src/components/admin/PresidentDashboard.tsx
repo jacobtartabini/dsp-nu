@@ -21,7 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
-const POINTS_REQUIREMENT = 100;
+const POINTS_REQUIREMENT = 7;
 const SERVICE_HOURS_REQUIREMENT = 10;
 
 export function PresidentDashboard() {
