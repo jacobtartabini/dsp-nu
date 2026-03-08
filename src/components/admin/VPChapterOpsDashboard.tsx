@@ -106,9 +106,14 @@ export function VPChapterOpsDashboard() {
     return memberRows.filter(row => {
       const matchesSearch = searchQuery === '' || row.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStanding = standingFilter === 'all' || (standingFilter === 'good' ? row.isGoodStanding : !row.isGoodStanding);
-      return matchesSearch && matchesStanding;
+      const matchesCategory = categoryFilter === 'all' || (
+        categoryMode === 'has'
+          ? (row.byCategory[categoryFilter] || 0) > 0
+          : (row.byCategory[categoryFilter] || 0) === 0
+      );
+      return matchesSearch && matchesStanding && matchesCategory;
     });
-  }, [memberRows, searchQuery, standingFilter]);
+  }, [memberRows, searchQuery, standingFilter, categoryFilter, categoryMode]);
 
 
   return (
