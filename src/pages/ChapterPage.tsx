@@ -895,7 +895,66 @@ export default function ChapterPage() {
               </Card>
             )}
 
-            {/* Quick Actions */}
+            {/* Paddle Submissions Toggle - VP of Scholarship & Awards */}
+            {isVPScholarship && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Paddle Controls</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Paddle Submissions</p>
+                      <p className="text-xs text-muted-foreground">Toggle to show or hide the paddle submission form on the Home page</p>
+                    </div>
+                    <Switch
+                      checked={!!paddleVisible}
+                      onCheckedChange={(checked) => updateSetting.mutate({ key: 'paddle_submissions_visible', value: checked })}
+                      disabled={updateSetting.isPending}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Paddle Submissions Table */}
+            {allPaddleSubmissions.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Palette className="h-4 w-4" />Paddle Submissions ({allPaddleSubmissions.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Submitted By</TableHead>
+                        <TableHead>Video Of</TableHead>
+                        <TableHead>Link</TableHead>
+                        <TableHead>Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {allPaddleSubmissions.map((sub) => (
+                        <TableRow key={sub.id}>
+                          <TableCell className="font-medium">{getMemberName(sub.user_id)}</TableCell>
+                          <TableCell>{sub.subject_name}</TableCell>
+                          <TableCell>
+                            <a href={sub.link_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1 text-sm">
+                              View <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">{format(new Date(sub.created_at), 'MMM d, yyyy')}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
+
+
             <Card>
               <CardHeader><CardTitle className="text-base">Quick Actions</CardTitle></CardHeader>
               <CardContent>
