@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Users, CalendarCheck, Shield, Eye, Search } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Users, CalendarCheck, Shield, Eye, Search, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useMembers } from '@/hooks/useMembers';
@@ -20,7 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei'] as const;
 const POINTS_REQUIREMENT = 7;
-const SERVICE_HOURS_REQUIREMENT = 10;
+const SERVICE_HOURS_REQUIREMENT = 3;
 
 export function VPChapterOpsDashboard() {
   const { data: members = [] } = useMembers();
@@ -179,9 +180,13 @@ export function VPChapterOpsDashboard() {
       </div>
 
       {/* Member Points Spreadsheet */}
+      <Collapsible>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Member Standing Spreadsheet</CardTitle>
+          <CollapsibleTrigger className="flex items-center justify-between w-full">
+            <CardTitle className="text-base">Member Standing Spreadsheet</CardTitle>
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+          </CollapsibleTrigger>
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -226,6 +231,7 @@ export function VPChapterOpsDashboard() {
             </div>
           </div>
         </CardHeader>
+        <CollapsibleContent>
         <CardContent className="p-0">
           <ScrollArea className="w-full">
             <div className="min-w-[900px]">
@@ -271,7 +277,9 @@ export function VPChapterOpsDashboard() {
             </div>
           </ScrollArea>
         </CardContent>
+        </CollapsibleContent>
       </Card>
+      </Collapsible>
 
       {selectedMember && (
         <MemberStandingDetail

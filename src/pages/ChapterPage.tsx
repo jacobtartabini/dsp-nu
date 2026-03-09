@@ -54,7 +54,7 @@ import { ChairPositionsManager } from '@/components/admin/ChairPositionsManager'
 
 const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei', 'new_member'] as const;
 const POINTS_REQUIREMENT = 7;
-const SERVICE_HOURS_REQUIREMENT = 10;
+const SERVICE_HOURS_REQUIREMENT = 3;
 
 const jobTypes = [
   { value: 'all', label: 'All Types' },
@@ -604,14 +604,20 @@ export default function ChapterPage() {
                   <CardTitle className="text-base font-medium flex items-center gap-2">
                     <Clock className="h-4 w-4 text-primary" />Service Hours
                   </CardTitle>
-                  <span className="text-2xl font-bold">{myVerifiedHours.toFixed(1)}</span>
+                  {myVerifiedHours >= SERVICE_HOURS_REQUIREMENT ? (
+                    <Badge className="bg-green-500/20 text-green-700 border-green-300 hover:bg-green-500/30">
+                      <CheckCircle className="h-3 w-3 mr-1" />Completed
+                    </Badge>
+                  ) : (
+                    <span className="text-2xl font-bold">{myVerifiedHours.toFixed(1)}</span>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Progress to {SERVICE_HOURS_REQUIREMENT}</span>
-                    <span className="font-medium">{Math.round(hoursProgress)}%</span>
+                    <span className="text-muted-foreground">Progress to {SERVICE_HOURS_REQUIREMENT} hrs</span>
+                    <span className="font-medium">{myVerifiedHours.toFixed(1)} / {SERVICE_HOURS_REQUIREMENT}</span>
                   </div>
                   <Progress value={hoursProgress} className="h-2" />
                 </div>
@@ -838,25 +844,13 @@ export default function ChapterPage() {
         {/* ========== ADMIN TAB ========== */}
         {isAdminOrOfficer && (
           <TabsContent value="admin" className="space-y-8">
-            {/* Show role-specific dashboards based on user's positions */}
+            {/* Each officer only sees their own dashboard */}
             {isVPChapterOps && <VPChapterOpsDashboard />}
             {isVPCommunityService && <VPCommunityServiceDashboard />}
             {isVPProfessionalActivities && <VPProfessionalActivitiesDashboard />}
             {isVPScholarship && <VPScholarshipDashboard />}
             {isPresident && <PresidentDashboard />}
             {isVPFinance && <VPFinanceDashboard />}
-
-            {/* Fallback for admins/developers who don't hold a specific VP position */}
-            {!isVPChapterOps && !isVPCommunityService && !isVPProfessionalActivities && !isVPScholarship && !isPresident && !isVPFinance && (
-              <div className="space-y-6">
-                <PresidentDashboard />
-                <VPFinanceDashboard />
-                <VPChapterOpsDashboard />
-                <VPCommunityServiceDashboard />
-                <VPProfessionalActivitiesDashboard />
-                <VPScholarshipDashboard />
-              </div>
-            )}
 
             {/* Chair Positions Management — visible to all admins/officers */}
             <ChairPositionsManager />
