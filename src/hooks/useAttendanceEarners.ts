@@ -1,12 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Database } from '@/integrations/supabase/types';
+
+type EventCategory = Database['public']['Enums']['event_category'];
 
 export interface AttendanceEarner {
   id: string;
   title: string;
   description: string | null;
-  category: string;
+  category: EventCategory;
   points_value: number;
   is_active: boolean;
   created_by: string | null;
@@ -57,11 +60,17 @@ export function useCreateAttendanceEarner() {
     mutationFn: async (values: {
       title: string;
       description?: string;
-      category: string;
+      category: EventCategory;
       points_value: number;
       created_by?: string;
     }) => {
-      const { error } = await supabase.from('attendance_earners').insert(values);
+      const { error } = await supabase.from('attendance_earners').insert({
+        title: values.title,
+        description: values.description,
+        category: values.category,
+        points_value: values.points_value,
+        created_by: values.created_by,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -79,11 +88,17 @@ export function useUpdateAttendanceEarner() {
       id: string;
       title?: string;
       description?: string;
-      category?: string;
+      category?: EventCategory;
       points_value?: number;
       is_active?: boolean;
     }) => {
-      const { error } = await supabase.from('attendance_earners').update(values).eq('id', id);
+      const { error } = await supabase.from('attendance_earners').update({
+        title: values.title,
+        description: values.description,
+        category: values.category,
+        points_value: values.points_value,
+        is_active: values.is_active,
+      }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -116,7 +131,7 @@ export function useGrantAttendanceEarner() {
       earner_id: string;
       user_id: string;
       granted_by: string;
-      category: string;
+      category: EventCategory;
       points_value: number;
       reason: string;
     }) => {
