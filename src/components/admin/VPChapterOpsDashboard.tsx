@@ -296,6 +296,9 @@ export function VPChapterOpsDashboard() {
 
       {/* Family Games Settings */}
       <FamilyGamesManager />
+
+      {/* Chair Positions */}
+      <ChairPositionsManager />
     </div>
   );
 }
