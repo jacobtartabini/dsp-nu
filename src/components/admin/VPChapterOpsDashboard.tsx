@@ -300,6 +300,9 @@ export function VPChapterOpsDashboard() {
 
       {/* Chair Positions */}
       <ChairPositionsManager />
+
+      {/* Exec Elections */}
+      <ElectionManager />
     </div>
   );
 }
