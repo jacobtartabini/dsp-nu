@@ -751,7 +751,7 @@ export default function ChapterPage() {
                             </p>
                             <p className="text-xs text-muted-foreground">{memberCount} members</p>
                           </div>
-                          <span className="text-sm font-semibold">{total} pts</span>
+                          <span className="text-sm font-semibold">{score.toFixed(1)} pts</span>
                         </div>
                       );
                     })}
