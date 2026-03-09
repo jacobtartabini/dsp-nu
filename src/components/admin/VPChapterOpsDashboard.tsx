@@ -280,6 +280,9 @@ export function VPChapterOpsDashboard() {
           memberName={selectedMember.name}
         />
       )}
+
+      {/* Attendance Earners */}
+      <AttendanceEarnersManager />
     </div>
   );
 }
