@@ -56,9 +56,15 @@ export function ManualAttendance({ event }: ManualAttendanceProps) {
   }, [existingAttendance]);
 
   const sortedMembers = useMemo(() => {
-    const active = members?.filter(m => m.status === 'active' || m.status === 'new_member') || [];
-    return active.sort((a, b) => a.last_name.localeCompare(b.last_name));
-  }, [members]);
+    let filtered = members?.filter(m => m.status === 'active' || m.status === 'new_member') || [];
+    
+    // For exec events, only show members with positions
+    if (isExecEvent) {
+      filtered = filtered.filter(m => (m.positions?.length ?? 0) > 0);
+    }
+    
+    return filtered.sort((a, b) => a.last_name.localeCompare(b.last_name));
+  }, [members, isExecEvent]);
 
   const filteredMembers = sortedMembers.filter(member => {
     const name = `${member.first_name} ${member.last_name}`.toLowerCase();

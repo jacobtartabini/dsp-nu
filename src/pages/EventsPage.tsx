@@ -34,11 +34,19 @@ export default function EventsPage() {
   // Check if user has positions (for exec events visibility)
   const hasPositions = (profile?.positions?.length ?? 0) > 0;
 
-  const filteredEvents = events?.filter(event =>
-    event.title.toLowerCase().includes(search.toLowerCase()) ||
-    event.category.toLowerCase().includes(search.toLowerCase()) ||
-    event.location?.toLowerCase().includes(search.toLowerCase())
-  ) ?? [];
+  // Filter events: hide exec events from non-officers
+  const filteredEvents = events?.filter(event => {
+    // Hide exec events from members without positions
+    if (event.category === 'exec' && !hasPositions) {
+      return false;
+    }
+    // Apply search filter
+    return (
+      event.title.toLowerCase().includes(search.toLowerCase()) ||
+      event.category.toLowerCase().includes(search.toLowerCase()) ||
+      event.location?.toLowerCase().includes(search.toLowerCase())
+    );
+  }) ?? [];
 
   const upcomingEvents = filteredEvents.filter(
     event => new Date(event.start_time) >= new Date()

@@ -12,7 +12,7 @@ import { Plus, Pencil } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 
 type Event = Tables<'events'>;
-type EventCategory = 'chapter' | 'rush' | 'fundraising' | 'service' | 'brotherhood' | 'professionalism' | 'dei' | 'new_member';
+type EventCategory = 'chapter' | 'rush' | 'fundraising' | 'service' | 'brotherhood' | 'professionalism' | 'dei' | 'new_member' | 'exec';
 
 const categories: { value: EventCategory; label: string }[] = [
   { value: 'chapter', label: 'Chapter' },
@@ -23,6 +23,7 @@ const categories: { value: EventCategory; label: string }[] = [
   { value: 'professionalism', label: 'Professionalism' },
   { value: 'dei', label: 'DE&I' },
   { value: 'new_member', label: 'New Member / PDP' },
+  { value: 'exec', label: 'Exec (Officers Only)' },
 ];
 
 interface EventFormProps {
