@@ -180,9 +180,13 @@ export function VPChapterOpsDashboard() {
       </div>
 
       {/* Member Points Spreadsheet */}
+      <Collapsible>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Member Standing Spreadsheet</CardTitle>
+          <CollapsibleTrigger className="flex items-center justify-between w-full">
+            <CardTitle className="text-base">Member Standing Spreadsheet</CardTitle>
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+          </CollapsibleTrigger>
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
