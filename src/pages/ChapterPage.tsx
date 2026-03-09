@@ -395,6 +395,10 @@ export default function ChapterPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className={`w-full max-w-2xl grid`} style={{ gridTemplateColumns: `repeat(${tabCount}, 1fr)` }}>
+          <TabsTrigger value="standing" className="gap-2">
+            <Award className="h-4 w-4 hidden sm:block" />
+            Standing
+          </TabsTrigger>
           <TabsTrigger value="jobs" className="gap-2">
             <Briefcase className="h-4 w-4 hidden sm:block" />
             Jobs
@@ -402,10 +406,6 @@ export default function ChapterPage() {
           <TabsTrigger value="coffee-chats" className="gap-2">
             <Coffee className="h-4 w-4 hidden sm:block" />
             Coffee Chats
-          </TabsTrigger>
-          <TabsTrigger value="standing" className="gap-2">
-            <Award className="h-4 w-4 hidden sm:block" />
-            Standing
           </TabsTrigger>
           <TabsTrigger value="resources" className="gap-2">
             <FolderOpen className="h-4 w-4 hidden sm:block" />
