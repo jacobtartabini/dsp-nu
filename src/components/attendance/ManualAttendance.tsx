@@ -30,6 +30,7 @@ export function ManualAttendance({ event }: ManualAttendanceProps) {
   const { isVPChapterOps } = useIsVPChapterOps();
 
   const isChapterEvent = event.category === 'chapter';
+  const isExecEvent = event.category === 'exec';
   
   // Permission check: chapter events = VP of Chapter Operations only, others = any exec
   const canRecord = isChapterEvent ? isVPChapterOps : isAdminOrOfficer;
@@ -55,9 +56,15 @@ export function ManualAttendance({ event }: ManualAttendanceProps) {
   }, [existingAttendance]);
 
   const sortedMembers = useMemo(() => {
-    const active = members?.filter(m => m.status === 'active' || m.status === 'new_member') || [];
-    return active.sort((a, b) => a.last_name.localeCompare(b.last_name));
-  }, [members]);
+    let filtered = members?.filter(m => m.status === 'active' || m.status === 'new_member') || [];
+    
+    // For exec events, only show members with positions
+    if (isExecEvent) {
+      filtered = filtered.filter(m => (m.positions?.length ?? 0) > 0);
+    }
+    
+    return filtered.sort((a, b) => a.last_name.localeCompare(b.last_name));
+  }, [members, isExecEvent]);
 
   const filteredMembers = sortedMembers.filter(member => {
     const name = `${member.first_name} ${member.last_name}`.toLowerCase();

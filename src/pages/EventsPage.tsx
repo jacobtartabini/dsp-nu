@@ -28,14 +28,25 @@ export default function EventsPage() {
   const [showEventDetail, setShowEventDetail] = useState(false);
   
   const { data: events, isLoading } = useEvents();
-  const { isAdminOrOfficer } = useAuth();
+  const { isAdminOrOfficer, profile } = useAuth();
   const { toast } = useToast();
 
-  const filteredEvents = events?.filter(event =>
-    event.title.toLowerCase().includes(search.toLowerCase()) ||
-    event.category.toLowerCase().includes(search.toLowerCase()) ||
-    event.location?.toLowerCase().includes(search.toLowerCase())
-  ) ?? [];
+  // Check if user has positions (for exec events visibility)
+  const hasPositions = (profile?.positions?.length ?? 0) > 0;
+
+  // Filter events: hide exec events from non-officers
+  const filteredEvents = events?.filter(event => {
+    // Hide exec events from members without positions
+    if (event.category === 'exec' && !hasPositions) {
+      return false;
+    }
+    // Apply search filter
+    return (
+      event.title.toLowerCase().includes(search.toLowerCase()) ||
+      event.category.toLowerCase().includes(search.toLowerCase()) ||
+      event.location?.toLowerCase().includes(search.toLowerCase())
+    );
+  }) ?? [];
 
   const upcomingEvents = filteredEvents.filter(
     event => new Date(event.start_time) >= new Date()

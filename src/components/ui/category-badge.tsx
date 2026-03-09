@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-type EventCategory = 'chapter' | 'rush' | 'fundraising' | 'service' | 'brotherhood' | 'professionalism' | 'dei' | 'new_member';
+type EventCategory = 'chapter' | 'rush' | 'fundraising' | 'service' | 'brotherhood' | 'professionalism' | 'dei' | 'new_member' | 'exec';
 
 interface CategoryBadgeProps {
   category: EventCategory;
@@ -39,6 +39,10 @@ const categoryConfig: Record<EventCategory, { label: string; className: string }
   new_member: {
     label: 'New Member',
     className: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
+  },
+  exec: {
+    label: 'Exec',
+    className: 'bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/20',
   },
 };
 
