@@ -30,6 +30,7 @@ export function ManualAttendance({ event }: ManualAttendanceProps) {
   const { isVPChapterOps } = useIsVPChapterOps();
 
   const isChapterEvent = event.category === 'chapter';
+  const isExecEvent = event.category === 'exec';
   
   // Permission check: chapter events = VP of Chapter Operations only, others = any exec
   const canRecord = isChapterEvent ? isVPChapterOps : isAdminOrOfficer;
