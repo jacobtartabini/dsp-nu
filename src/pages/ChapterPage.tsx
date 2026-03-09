@@ -54,7 +54,7 @@ import { ChairPositionsManager } from '@/components/admin/ChairPositionsManager'
 
 const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei', 'new_member'] as const;
 const POINTS_REQUIREMENT = 7;
-const SERVICE_HOURS_REQUIREMENT = 10;
+const SERVICE_HOURS_REQUIREMENT = 3;
 
 const jobTypes = [
   { value: 'all', label: 'All Types' },
