@@ -852,8 +852,6 @@ export default function ChapterPage() {
             {isPresident && <PresidentDashboard />}
             {isVPFinance && <VPFinanceDashboard />}
 
-            {/* Chair Positions Management — visible to all admins/officers */}
-            <ChairPositionsManager />
           </TabsContent>
         )}
       </Tabs>
