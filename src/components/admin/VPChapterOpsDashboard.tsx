@@ -231,6 +231,7 @@ export function VPChapterOpsDashboard() {
             </div>
           </div>
         </CardHeader>
+        <CollapsibleContent>
         <CardContent className="p-0">
           <ScrollArea className="w-full">
             <div className="min-w-[900px]">
@@ -276,7 +277,9 @@ export function VPChapterOpsDashboard() {
             </div>
           </ScrollArea>
         </CardContent>
+        </CollapsibleContent>
       </Card>
+      </Collapsible>
 
       {selectedMember && (
         <MemberStandingDetail
