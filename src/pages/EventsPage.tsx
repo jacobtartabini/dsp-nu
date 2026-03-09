@@ -28,8 +28,11 @@ export default function EventsPage() {
   const [showEventDetail, setShowEventDetail] = useState(false);
   
   const { data: events, isLoading } = useEvents();
-  const { isAdminOrOfficer } = useAuth();
+  const { isAdminOrOfficer, profile } = useAuth();
   const { toast } = useToast();
+
+  // Check if user has positions (for exec events visibility)
+  const hasPositions = (profile?.positions?.length ?? 0) > 0;
 
   const filteredEvents = events?.filter(event =>
     event.title.toLowerCase().includes(search.toLowerCase()) ||
