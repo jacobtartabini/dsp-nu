@@ -50,6 +50,7 @@ import { VPProfessionalActivitiesDashboard } from '@/components/admin/VPProfessi
 import { VPScholarshipDashboard } from '@/components/admin/VPScholarshipDashboard';
 import { PresidentDashboard } from '@/components/admin/PresidentDashboard';
 import { VPFinanceDashboard } from '@/components/admin/VPFinanceDashboard';
+import { ChancellorDashboard } from '@/components/admin/ChancellorDashboard';
 
 
 const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei', 'new_member'] as const;
@@ -92,6 +93,7 @@ export default function ChapterPage() {
   const isVPProfessionalActivities = profile?.positions?.includes('VP of Professional Activities') || false;
   const isPresident = profile?.positions?.includes('President') || false;
   const isVPFinance = profile?.positions?.includes('VP Finance') || profile?.positions?.includes('VP of Finance') || false;
+  const isChancellor = profile?.positions?.includes('Chancellor') || false;
 
   const [activeTab, setActiveTab] = useState('standing');
   const [jobSearch, setJobSearch] = useState('');
@@ -855,6 +857,7 @@ export default function ChapterPage() {
             {isVPScholarship && <VPScholarshipDashboard />}
             {isPresident && <PresidentDashboard />}
             {isVPFinance && <VPFinanceDashboard />}
+            {isChancellor && <ChancellorDashboard />}
 
           </TabsContent>
         )}
