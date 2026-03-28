@@ -17,6 +17,7 @@ export interface ElectionPosition {
   election_id: string;
   position_name: string;
   sort_order: number;
+  is_active: boolean;
   created_at: string;
 }
 
