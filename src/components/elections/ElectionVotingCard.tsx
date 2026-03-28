@@ -46,7 +46,7 @@ function VotingSection({ election }: { election: Election }) {
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {positions.map(position => {
+        {positions.filter(p => p.is_active).map(position => {
           const posCandidates = candidates.filter(c => c.position_id === position.id);
           const myVote = myVotes.find(v => v.position_id === position.id);
 
