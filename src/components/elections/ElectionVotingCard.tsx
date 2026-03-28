@@ -23,7 +23,8 @@ function VotingSection({ election }: { election: Election }) {
     castVote.mutate({ position_id: positionId, candidate_id: candidateId, voter_id: user.id });
   };
 
-  const allVoted = positions.length > 0 && positions.every(p => myVotes.some(v => v.position_id === p.id));
+  const activePositions = positions.filter(p => p.is_active);
+  const allVoted = activePositions.length > 0 && activePositions.every(p => myVotes.some(v => v.position_id === p.id));
 
   return (
     <Card className={`border ${allVoted ? 'border-green-500/30 bg-green-500/5' : 'border-primary/20'}`}>
