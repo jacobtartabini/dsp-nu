@@ -156,12 +156,12 @@ function ElectionDetail({ election }: { election: Election }) {
             <Badge className={statusColor[election.status]}>{election.status}</Badge>
             {election.status === 'draft' && (
               <Button size="sm" variant="default" className="gap-1 h-7" onClick={() => updateStatus.mutate({ id: election.id, status: 'open' })}>
-                <Play className="h-3 w-3" />Open All
+                <Play className="h-3 w-3" />Publish
               </Button>
             )}
             {election.status === 'open' && (
               <Button size="sm" variant="destructive" className="gap-1 h-7" onClick={() => updateStatus.mutate({ id: election.id, status: 'closed' })}>
-                <Square className="h-3 w-3" />Close All
+                <Square className="h-3 w-3" />Close Election
               </Button>
             )}
             {election.status === 'closed' && (
