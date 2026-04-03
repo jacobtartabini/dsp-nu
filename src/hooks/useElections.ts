@@ -152,6 +152,7 @@ export function useUpdateElectionStatus() {
     onSuccess: () => {
       toast.success('Election status updated');
       qc.invalidateQueries({ queryKey: ['elections'] });
+      qc.invalidateQueries({ queryKey: ['election-positions'] });
     },
     onError: () => toast.error('Failed to update election'),
   });
