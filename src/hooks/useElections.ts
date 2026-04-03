@@ -138,6 +138,14 @@ export function useUpdateElectionStatus() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: 'draft' | 'open' | 'closed' }) => {
+      // When publishing, deactivate all positions so VP must open each manually
+      if (status === 'open') {
+        const { error: posError } = await supabase
+          .from('election_positions')
+          .update({ is_active: false })
+          .eq('election_id', id);
+        if (posError) throw posError;
+      }
       const { error } = await supabase.from('elections').update({ status }).eq('id', id);
       if (error) throw error;
     },
