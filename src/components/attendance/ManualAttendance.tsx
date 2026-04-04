@@ -45,7 +45,13 @@ export function ManualAttendance({ event }: ManualAttendanceProps) {
       filtered = filtered.filter(m => (m.positions?.length ?? 0) > 0);
     }
     
-    return filtered.sort((a, b) => a.last_name.localeCompare(b.last_name));
+    // Sort: active members first, then new members, alphabetically within each group
+    return filtered.sort((a, b) => {
+      const aIsNew = a.status === 'new_member' ? 1 : 0;
+      const bIsNew = b.status === 'new_member' ? 1 : 0;
+      if (aIsNew !== bIsNew) return aIsNew - bIsNew;
+      return a.last_name.localeCompare(b.last_name);
+    });
   }, [members, isExecEvent]);
 
   const mapAttendanceStatus = (record: any): AttendanceStatus => {
