@@ -34,6 +34,9 @@ export function VPChapterOpsDashboard() {
   const { data: eopVisible } = useChapterSetting('eop_visible');
   const { data: eopDate } = useChapterSetting('eop_date');
   const { data: eopAttendanceData } = useChapterSetting('eop_attendance');
+  const { data: eopBaseVoters } = useChapterSetting('eop_base_voters');
+  const { data: eopCandidates = [] } = useRealtimeCandidates();
+  const { data: eopVoteCounts } = useRealtimeVoteCounts();
   const updateSetting = useUpdateChapterSetting();
   const [selectedMember, setSelectedMember] = useState<{ userId: string; name: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
