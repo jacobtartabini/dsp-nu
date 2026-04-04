@@ -21,6 +21,7 @@ import { useAllAttendance } from '@/hooks/useAttendance';
 import { useChapterSetting, useUpdateChapterSetting } from '@/hooks/useChapterSettings';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useRealtimeCandidates, useRealtimeVoteCounts } from '@/hooks/useEOPRealtime';
 import { toast } from 'sonner';
 
 const categories = ['chapter', 'rush', 'fundraising', 'service', 'brotherhood', 'professionalism', 'dei'] as const;
