@@ -481,6 +481,44 @@ export function VPChapterOpsDashboard() {
               </ScrollArea>
             </CardContent>
           </Card>
+
+          {/* EOP Results */}
+          {eopCandidates.length > 0 && (() => {
+            const currentBase = typeof eopBaseVoters === 'number' ? eopBaseVoters : (typeof eopBaseVoters === 'string' ? parseInt(eopBaseVoters as string) : 0);
+            const results = eopCandidates.map((c) => {
+              const counts = eopVoteCounts?.[c.id];
+              const yesVotes = counts?.yes || 0;
+              const absentMembers: string[] = (c as any).absent_members || [];
+              const eligibleVoters = Math.max(0, currentBase - absentMembers.length);
+              const requiredYes = eligibleVoters > 0 ? Math.ceil(eligibleVoters * 0.8) : 0;
+              const isApproved = eligibleVoters > 0 && yesVotes >= requiredYes;
+              return { ...c, yesVotes, eligibleVoters, isApproved };
+            });
+            const approvedCount = results.filter(r => r.isApproved).length;
+            return (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    EOP Results ({approvedCount}/{eopCandidates.length} approved)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {results.map((c) => (
+                    <div key={c.id} className={`flex items-center justify-between p-2.5 rounded-lg border ${c.isApproved ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                      <div className="flex items-center gap-2">
+                        {c.isApproved ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
+                        <span className="text-sm font-medium">{c.first_name} {c.last_name}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {c.yesVotes}/{c.eligibleVoters} yes ({c.eligibleVoters > 0 ? Math.round((c.yesVotes / c.eligibleVoters) * 100) : 0}%)
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            );
+          })()}
         </TabsContent>
 
         {/* Elections Tab */}
