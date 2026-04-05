@@ -46,7 +46,7 @@ function ResultsView({ election }: { election: Election }) {
           <span className="text-muted-foreground">/ {activeMembers} voted</span>
         </div>
         <div className="flex-1">
-          <Progress value={turnout} className="h-2 [&>div]:bg-muted-foreground" />
+          <Progress value={turnout} className="h-2 bg-muted [&>div]:bg-primary" />
         </div>
         <span className="font-semibold text-foreground">{turnout}%</span>
       </div>
