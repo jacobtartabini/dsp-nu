@@ -221,21 +221,6 @@ export function VPChapterOpsDashboard() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-3 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Eye className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">EOP Visible</p>
-            </div>
-            <Switch
-              checked={!!eopVisible}
-              onCheckedChange={(checked) => updateSetting.mutate({ key: 'eop_visible', value: checked })}
-              disabled={updateSetting.isPending}
-            />
-          </CardContent>
-        </Card>
       </div>
 
       {/* Tabbed Sections */}
@@ -363,6 +348,18 @@ export function VPChapterOpsDashboard() {
 
         {/* EOP Tab */}
         <TabsContent value="eop" className="mt-4 space-y-4">
+          {/* EOP Visibility Toggle */}
+          <div className="flex items-center justify-between p-3 rounded-lg border">
+            <div className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm font-medium">EOP Tab Visible to Members</Label>
+            </div>
+            <Switch
+              checked={!!eopVisible}
+              onCheckedChange={(checked) => updateSetting.mutate({ key: 'eop_visible', value: checked })}
+              disabled={updateSetting.isPending}
+            />
+          </div>
           {/* EOP Date */}
           <Card>
             <CardHeader className="pb-3">
