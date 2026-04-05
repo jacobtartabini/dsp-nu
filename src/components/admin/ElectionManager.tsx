@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Vote, Plus, X, Play, Square, BarChart3,
+  Vote, Plus, X, Trash2, Play, Square, BarChart3,
   Users, UserPlus, Trophy, Eye, EyeOff
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
