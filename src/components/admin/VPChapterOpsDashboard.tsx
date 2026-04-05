@@ -187,7 +187,7 @@ export function VPChapterOpsDashboard() {
       </div>
 
       {/* Quick Stats Row */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+      <div className="grid gap-3 grid-cols-3">
         <Card>
           <CardContent className="p-3 flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
