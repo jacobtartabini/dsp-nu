@@ -83,6 +83,13 @@ export const org = {
     uidSuffix: "@dsp-nu.app",
     exportFilename: "dsp-nu-events",
   },
+
+  meta: {
+    themeColor: "#6b21a8",
+    backgroundColor: "#faf9f7",
+    description: "Chapter management app for Delta Sigma Pi Nu Chapter",
+    companyName: "Tartabini Enterprises LLC",
+  },
 } as const;
 
 export type OrgConfig = typeof org;
