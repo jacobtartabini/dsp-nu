@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 
 import AuthPage from "./pages/AuthPage";
+import AuthCallbackPage from "./pages/AuthCallbackPage";
 import HomePage from "./pages/HomePage";
 import PeoplePage from "./pages/PeoplePage";
 import MemberProfilePage from "./pages/MemberProfilePage";
@@ -32,6 +33,7 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/" element={<HomePage />} />
               <Route path="/people" element={<PeoplePage />} />
