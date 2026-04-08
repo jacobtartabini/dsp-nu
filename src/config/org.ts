@@ -53,6 +53,10 @@ export const org = {
     "VP of New Member Education",
   ],
 
+  chapterOpsPositions: [
+    "VP of Chapter Operations",
+  ],
+
   features: {
     eop: true,
     pdp: true,
@@ -70,6 +74,10 @@ export const org = {
     minPoints: 7,
     minServiceHours: 3,
   },
+
+  superAdmins: [
+    "jacobtart8@gmail.com",
+  ],
 
   auth: {
     allowGoogle: true,
@@ -111,3 +119,15 @@ export const categoryLabels: Record<string, string> = Object.fromEntries([
   [org.newMemberCategory.key, org.newMemberCategory.label],
   [org.execCategory.key, org.execCategory.label],
 ]);
+
+export function hasPosition(profile: { positions?: string[] | null } | null, ...titles: string[]): boolean {
+  return titles.some(t => profile?.positions?.includes(t));
+}
+
+export function isPDPOfficer(profile: { positions?: string[] | null } | null): boolean {
+  return org.pdpOfficerTitles.some(t => profile?.positions?.includes(t));
+}
+
+export function isChapterOps(profile: { positions?: string[] | null } | null): boolean {
+  return org.chapterOpsPositions.some(t => profile?.positions?.includes(t));
+}
