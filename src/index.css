@@ -166,7 +166,14 @@
 
   /* Mobile bottom nav safe area */
   .pb-safe {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  /* Mobile-friendly form inputs */
+  @media (max-width: 768px) {
+    input, select, textarea, button {
+      font-size: 16px !important; /* Prevent iOS zoom on focus */
+    }
   }
 }
 
@@ -221,5 +228,5 @@
 
 /* PWA Install banner */
 .install-banner {
-  @apply fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:bottom-4 md:w-80;
+  @apply fixed bottom-24 left-4 right-4 md:left-auto md:right-4 md:bottom-4 md:w-80;
 }

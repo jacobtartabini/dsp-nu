@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Vote, CheckCircle, Trophy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
   useElections, useElectionPositions, useElectionCandidates,
   useMyElectionVotes, useCastVote,
@@ -85,8 +87,27 @@ function VotingSection({ election }: { election: Election }) {
 }
 
 export function ElectionVotingCards() {
+  const queryClient = useQueryClient();
   const { data: elections = [] } = useElections();
   const openElections = elections.filter(e => e.status === 'open');
+
+  // Realtime: refresh when elections, positions, or candidates change
+  useEffect(() => {
+    const channel = supabase
+      .channel('home-election-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'elections' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['elections'] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'election_positions' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['election-positions'] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'election_candidates' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['election-candidates'] });
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
 
   if (openElections.length === 0) return null;
 
