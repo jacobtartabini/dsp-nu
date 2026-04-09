@@ -856,6 +856,70 @@ export type Database = {
           },
         ]
       }
+      event_tickets: {
+        Row: {
+          assigned_by: string | null
+          cancelled_at: string | null
+          check_in_code: string
+          checked_in_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          payment_status: string
+          ticketed_event_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          cancelled_at?: string | null
+          check_in_code?: string
+          checked_in_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_status?: string
+          ticketed_event_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          cancelled_at?: string | null
+          check_in_code?: string
+          checked_in_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_status?: string
+          ticketed_event_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tickets_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "event_tickets_ticketed_event_id_fkey"
+            columns: ["ticketed_event_id"]
+            isOneToOne: false
+            referencedRelation: "ticketed_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       events: {
         Row: {
           attendance_open: boolean
@@ -1040,9 +1104,13 @@ export type Database = {
       }
       notification_preferences: {
         Row: {
+          announcement_notifications: boolean
           coffee_chat_notifications: boolean
           created_at: string
+          data_usage_consent: boolean
+          data_usage_consent_updated_at: string | null
           event_notifications: boolean
+          event_reminder_24h: boolean
           id: string
           job_board_notifications: boolean
           push_enabled: boolean
@@ -1051,9 +1119,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          announcement_notifications?: boolean
           coffee_chat_notifications?: boolean
           created_at?: string
+          data_usage_consent?: boolean
+          data_usage_consent_updated_at?: string | null
           event_notifications?: boolean
+          event_reminder_24h?: boolean
           id?: string
           job_board_notifications?: boolean
           push_enabled?: boolean
@@ -1062,9 +1134,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          announcement_notifications?: boolean
           coffee_chat_notifications?: boolean
           created_at?: string
+          data_usage_consent?: boolean
+          data_usage_consent_updated_at?: string | null
           event_notifications?: boolean
+          event_reminder_24h?: boolean
           id?: string
           job_board_notifications?: boolean
           push_enabled?: boolean
@@ -1077,35 +1153,56 @@ export type Database = {
       notifications: {
         Row: {
           created_at: string
+          event_id: string | null
           id: string
           is_read: boolean
           link: string | null
           message: string
+          ticketed_event_id: string | null
           title: string
           type: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          event_id?: string | null
           id?: string
           is_read?: boolean
           link?: string | null
           message: string
+          ticketed_event_id?: string | null
           title: string
           type?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          event_id?: string | null
           id?: string
           is_read?: boolean
           link?: string | null
           message?: string
+          ticketed_event_id?: string | null
           title?: string
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_ticketed_event_id_fkey"
+            columns: ["ticketed_event_id"]
+            isOneToOne: false
+            referencedRelation: "ticketed_events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       paddle_submissions: {
         Row: {
@@ -1538,6 +1635,68 @@ export type Database = {
         }
         Relationships: []
       }
+      ticketed_events: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          created_by: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          location: string | null
+          payment_url: string | null
+          payment_url_internal: boolean
+          price_cents: number
+          published: boolean
+          registrations_open: boolean
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          location?: string | null
+          payment_url?: string | null
+          payment_url_internal?: boolean
+          price_cents?: number
+          published?: boolean
+          registrations_open?: boolean
+          starts_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          location?: string | null
+          payment_url?: string | null
+          payment_url_internal?: boolean
+          price_cents?: number
+          published?: boolean
+          registrations_open?: boolean
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticketed_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1564,6 +1723,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_assign_ticketed_event_ticket: {
+        Args: {
+          p_ticketed_event_id: string
+          p_user_id: string
+          p_waive_payment?: boolean
+        }
+        Returns: Json
+      }
+      broadcast_chapter_announcement: {
+        Args: { p_link?: string; p_message: string; p_title: string }
+        Returns: undefined
+      }
+      cancel_own_event_ticket: { Args: { p_ticket_id: string }; Returns: Json }
+      check_in_ticket_by_code: { Args: { p_code: string }; Returns: Json }
+      claim_ticketed_event_ticket: {
+        Args: { p_ticketed_event_id: string }
+        Returns: Json
+      }
+      delete_user_account: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1572,6 +1750,26 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_officer: { Args: { _user_id: string }; Returns: boolean }
+      notify_event_rsvps_updated: {
+        Args: { p_event_id: string; p_message: string; p_title: string }
+        Returns: undefined
+      }
+      notify_members_new_event: {
+        Args: { p_event_id: string }
+        Returns: undefined
+      }
+      notify_ticket_holders_ticketed_event_updated: {
+        Args: {
+          p_message: string
+          p_ticketed_event_id: string
+          p_title: string
+        }
+        Returns: undefined
+      }
+      purge_exported_data: {
+        Args: { p_datasets: string[]; p_from: string; p_to: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "officer" | "member" | "developer"
