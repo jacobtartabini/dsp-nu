@@ -303,25 +303,6 @@ export function VPFinanceDashboard() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <LayoutGrid className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <div className="min-w-0">
-            <Label className="text-sm font-medium">Dues card on Home</Label>
-            <p className="text-xs text-muted-foreground">
-              When off, members do not see the dues balance / installment reminder on the home screen.
-            </p>
-          </div>
-        </div>
-        <Switch
-          checked={!!duesHomeWidgetVisible}
-          onCheckedChange={(checked) =>
-            updateChapterSetting.mutate({ key: DUES_HOME_WIDGET_KEY, value: checked })
-          }
-          disabled={updateChapterSetting.isPending}
-        />
-      </div>
-
       <Tabs defaultValue="dues" className="space-y-6">
         <TabsList className="grid w-full max-w-xl grid-cols-3">
           <TabsTrigger value="dues" className="gap-1.5">
@@ -1037,6 +1018,26 @@ export function VPFinanceDashboard() {
           <FinanceScheduleCalendar items={scheduleItems} />
         </TabsContent>
       </Tabs>
+
+      <div className="flex flex-col gap-3 border-t border-border/50 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-start gap-2">
+          <LayoutGrid className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/80" />
+          <div className="min-w-0 space-y-0.5">
+            <Label className="text-xs font-medium text-muted-foreground">Dues card on Home</Label>
+            <p className="text-xs text-muted-foreground/90">
+              When off, members do not see the dues balance / installment reminder on the home screen.
+            </p>
+          </div>
+        </div>
+        <Switch
+          className="shrink-0 sm:mt-0"
+          checked={!!duesHomeWidgetVisible}
+          onCheckedChange={(checked) =>
+            updateChapterSetting.mutate({ key: DUES_HOME_WIDGET_KEY, value: checked })
+          }
+          disabled={updateChapterSetting.isPending}
+        />
+      </div>
     </div>
   );
 }
