@@ -12,9 +12,9 @@ import { Pencil, Upload, Loader2 } from 'lucide-react';
 import { useUpdateMember, useMembers } from '@/core/members/hooks/useMembers';
 import { Tables } from '@/integrations/supabase/types';
 import { useAuth } from '@/core/auth/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarCropDialog } from './AvatarCropDialog';
+import { uploadCroppedAvatar } from '@/core/members/lib/uploadCroppedAvatar';
 
 const formSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -82,18 +82,7 @@ export function ProfileEditDialog({ profile, trigger }: ProfileEditDialogProps) 
 
     setUploading(true);
     try {
-      const filePath = `${user.id}/${Date.now()}.jpg`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, blob, { upsert: true, contentType: 'image/jpeg' });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
+      const publicUrl = await uploadCroppedAvatar(user.id, blob);
       setAvatarUrl(publicUrl);
       toast({ title: 'Photo uploaded successfully' });
     } catch (error: any) {
