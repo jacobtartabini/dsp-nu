@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react';
 import { AppLayout } from '@/core/layout/AppLayout';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
@@ -6,11 +7,25 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/core/auth/AuthContext';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { ProfileEditDialog } from '@/core/members/components/ProfileEditDialog';
-import { useMemberByUserId } from '@/core/members/hooks/useMembers';
+import { AvatarCropDialog } from '@/core/members/components/AvatarCropDialog';
+import { useMemberByUserId, useUpdateMember } from '@/core/members/hooks/useMembers';
+import { uploadCroppedAvatar } from '@/core/members/lib/uploadCroppedAvatar';
 import { useNotificationPreferences, useUpdateNotificationPreferences } from '@/features/notifications/hooks/useNotifications';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { LogOut, Bell, Palette, ExternalLink, ChevronRight } from 'lucide-react';
+import { LogOut, Bell, Palette, ExternalLink, ChevronRight, Download, Trash2, Shield, Loader2, Upload } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 
 const NOTIFICATION_ITEMS = [
   { id: 'push', key: 'push_enabled', label: 'Push Notifications', desc: 'Browser push notifications' },
@@ -21,13 +36,172 @@ const NOTIFICATION_ITEMS = [
 ] as const;
 
 export default function SettingsPage() {
-  const { profile, roles, user, signOut } = useAuth();
+  const { profile, roles, user, signOut, refreshProfile } = useAuth();
   const { data: fullProfile } = useMemberByUserId(user?.id || '');
   const { data: prefs } = useNotificationPreferences();
   const updatePrefs = useUpdateNotificationPreferences();
+  const updateMember = useUpdateMember();
+  const { toast } = useToast();
+  const settingsPhotoInputRef = useRef<HTMLInputElement>(null);
+
+  const [exporting, setExporting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [settingsCropFile, setSettingsCropFile] = useState<File | null>(null);
+  const [settingsCropOpen, setSettingsCropOpen] = useState(false);
+  const [settingsPhotoUploading, setSettingsPhotoUploading] = useState(false);
 
   const handlePrefChange = (key: string, value: boolean) => {
     updatePrefs.mutate({ [key]: value });
+  };
+
+  const handleSettingsPhotoPick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setSettingsCropFile(file);
+    setSettingsCropOpen(true);
+    if (settingsPhotoInputRef.current) settingsPhotoInputRef.current.value = '';
+  };
+
+  const handleSettingsCropComplete = async (blob: Blob) => {
+    if (!user || !fullProfile) return;
+    setSettingsPhotoUploading(true);
+    try {
+      const publicUrl = await uploadCroppedAvatar(user.id, blob);
+      await updateMember.mutateAsync({ id: fullProfile.id, avatar_url: publicUrl });
+      await refreshProfile();
+    } catch (error: any) {
+      toast({
+        title: 'Photo update failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setSettingsPhotoUploading(false);
+      setSettingsCropFile(null);
+    }
+  };
+
+  const handleExportData = async () => {
+    if (!user) return;
+    setExporting(true);
+    try {
+      const exportWarnings: string[] = [];
+
+      const [
+        profileRes,
+        attendanceRes,
+        serviceHoursRes,
+        pointsRes,
+        coffeeChatsRes,
+        duesPaymentsRes,
+        eventRsvpsRes,
+        notifPrefsRes,
+        pdpSubmissionsRes,
+        jobBookmarksRes,
+        notificationsRes,
+        userRolesRes,
+        attendanceEarnerCompletionsRes,
+        paddleSubmissionsRes,
+        pdpCommentsRes,
+        eopReadyRes,
+        eopVotesRes,
+      ] = await Promise.all([
+        supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
+        supabase.from('attendance').select('*').eq('user_id', user.id),
+        supabase.from('service_hours').select('*').eq('user_id', user.id),
+        supabase.from('points_ledger').select('*').eq('user_id', user.id),
+        supabase.from('coffee_chats').select('*').eq('user_id', user.id),
+        supabase.from('dues_payments').select('*').eq('user_id', user.id),
+        supabase.from('event_rsvps').select('*').eq('user_id', user.id),
+        supabase.from('notification_preferences').select('*').eq('user_id', user.id),
+        supabase.from('pdp_submissions').select('*').eq('user_id', user.id),
+        supabase.from('job_bookmarks').select('*').eq('user_id', user.id),
+        supabase.from('notifications').select('*').eq('user_id', user.id),
+        supabase.from('user_roles').select('*').eq('user_id', user.id),
+        supabase.from('attendance_earner_completions').select('*').eq('user_id', user.id),
+        supabase.from('paddle_submissions').select('*').eq('user_id', user.id),
+        supabase.from('pdp_comments').select('*').eq('user_id', user.id),
+        supabase.from('eop_ready').select('*').eq('user_id', user.id),
+        supabase.from('eop_votes').select('*').eq('user_id', user.id),
+      ]);
+
+      const collect = (label: string, res: { error: { message: string } | null; data: unknown }) => {
+        if (res.error) {
+          exportWarnings.push(`${label}: ${res.error.message}`);
+          return null;
+        }
+        return res.data;
+      };
+
+      const exportData = {
+        exported_at: new Date().toISOString(),
+        account_email: user.email,
+        export_notes:
+          'Personal data held in this application. If export_warnings is non-empty, some categories could not be retrieved (e.g. permissions).',
+        export_warnings: exportWarnings,
+        profile: collect('profiles', profileRes),
+        attendance: collect('attendance', attendanceRes) ?? [],
+        service_hours: collect('service_hours', serviceHoursRes) ?? [],
+        points: collect('points_ledger', pointsRes) ?? [],
+        coffee_chats: collect('coffee_chats', coffeeChatsRes) ?? [],
+        dues_payments: collect('dues_payments', duesPaymentsRes) ?? [],
+        event_rsvps: collect('event_rsvps', eventRsvpsRes) ?? [],
+        notification_preferences: collect('notification_preferences', notifPrefsRes),
+        pdp_submissions: collect('pdp_submissions', pdpSubmissionsRes) ?? [],
+        job_bookmarks: collect('job_bookmarks', jobBookmarksRes) ?? [],
+        notifications: collect('notifications', notificationsRes) ?? [],
+        user_roles: collect('user_roles', userRolesRes) ?? [],
+        attendance_earner_completions: collect('attendance_earner_completions', attendanceEarnerCompletionsRes) ?? [],
+        paddle_submissions: collect('paddle_submissions', paddleSubmissionsRes) ?? [],
+        pdp_comments: collect('pdp_comments', pdpCommentsRes) ?? [],
+        eop_ready: collect('eop_ready', eopReadyRes) ?? [],
+        eop_votes: collect('eop_votes', eopVotesRes) ?? [],
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dsp-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      if (exportWarnings.length > 0) {
+        toast({
+          title: 'Export downloaded',
+          description: 'Some data categories could not be included. See export_warnings in the file.',
+        });
+      } else {
+        toast({ title: 'Data exported successfully' });
+      }
+    } catch (error: any) {
+      toast({ title: 'Export failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user || deleteConfirmText !== 'DELETE') return;
+    setDeleting(true);
+    try {
+      const { error } = await supabase.rpc('delete_user_account');
+      if (error) throw error;
+
+      setDeleteDialogOpen(false);
+      await signOut();
+    } catch (error: any) {
+      toast({
+        title: 'Account deletion failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      setDeleting(false);
+    }
   };
 
   return (
@@ -62,16 +236,55 @@ export default function SettingsPage() {
             </div>
           </div>
           {fullProfile && (
-            <div className="border-t px-5 sm:px-6 py-3">
-              <ProfileEditDialog
-                profile={fullProfile}
-                trigger={
-                  <button className="w-full flex items-center justify-between text-sm font-medium text-primary hover:text-primary/80 transition-colors py-0.5">
-                    Edit Profile
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                }
-              />
+            <div className="border-t divide-y">
+              <div className="px-5 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Profile photo</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Crop to a circle, then save to your profile
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <input
+                    ref={settingsPhotoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleSettingsPhotoPick}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => settingsPhotoInputRef.current?.click()}
+                    disabled={settingsPhotoUploading}
+                    className="gap-2"
+                  >
+                    {settingsPhotoUploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving…
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4" />
+                        Change photo
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <div className="px-5 sm:px-6 py-3">
+                <ProfileEditDialog
+                  profile={fullProfile}
+                  trigger={
+                    <button className="w-full flex items-center justify-between text-sm font-medium text-primary hover:text-primary/80 transition-colors py-0.5">
+                      Edit profile details
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  }
+                />
+              </div>
             </div>
           )}
         </div>
@@ -106,6 +319,51 @@ export default function SettingsPage() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* ── Data & Privacy ── */}
+        <section>
+          <SectionLabel icon={Shield} label="Data & Privacy" />
+          <div className="rounded-xl border bg-card divide-y overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3.5 sm:px-5">
+              <div className="min-w-0 pr-4">
+                <p className="text-sm font-medium">Export Your Data</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Download a machine-readable copy of your personal data (JSON), including profile, activity, and preferences where available
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportData}
+                disabled={exporting}
+                className="shrink-0"
+              >
+                {exporting ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Exporting...</>
+                ) : (
+                  <><Download className="h-4 w-4 mr-2" />Export</>
+                )}
+              </Button>
+            </div>
+            <div className="flex items-center justify-between px-4 py-3.5 sm:px-5">
+              <div className="min-w-0 pr-4">
+                <p className="text-sm font-medium text-destructive">Delete Account</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Permanently remove your login and delete associated records held in this app. Export your data first if you need a copy.
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setDeleteDialogOpen(true)}
+                className="shrink-0"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </div>
+          </div>
         </section>
 
         {/* ── About & Legal ── */}
@@ -150,6 +408,69 @@ export default function SettingsPage() {
           Sign Out
         </Button>
       </div>
+
+      {/* ── Delete Account Confirmation ── */}
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) setDeleteConfirmText('');
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  This action is <strong className="text-destructive">permanent and irreversible</strong>.
+                  All of your data will be deleted, including your profile, attendance records, points,
+                  service hours, and any other associated data.
+                </p>
+                <p>
+                  We recommend exporting your data before proceeding.
+                </p>
+                <div className="pt-1">
+                  <label className="text-xs font-medium text-foreground" htmlFor="delete-confirm">
+                    Type <span className="font-mono font-bold">DELETE</span> to confirm
+                  </label>
+                  <Input
+                    id="delete-confirm"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder="DELETE"
+                    className="mt-1.5 font-mono"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteConfirmText('')}>
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={deleteConfirmText !== 'DELETE' || deleting}
+            >
+              {deleting ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Deleting...</>
+              ) : (
+                'Permanently Delete Account'
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AvatarCropDialog
+        file={settingsCropFile}
+        open={settingsCropOpen}
+        onOpenChange={setSettingsCropOpen}
+        onCropComplete={handleSettingsCropComplete}
+      />
     </AppLayout>
   );
 }
