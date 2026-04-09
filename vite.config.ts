@@ -44,6 +44,9 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        // Our main bundle can exceed Workbox's default 2MiB precache limit.
+        // Increasing this prevents production builds from failing when the app grows.
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         runtimeCaching: [
