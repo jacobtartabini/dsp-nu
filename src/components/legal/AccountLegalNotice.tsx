@@ -17,9 +17,13 @@ export function AccountLegalNotice({ className }: { className?: string }) {
       <a href={legal.termsUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
         Terms of Service
       </a>
-      , and{' '}
+      ,{' '}
       <a href={legal.privacyUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
         Privacy Policy
+      </a>
+      , and{' '}
+      <a href={legal.cookiesUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+        Cookie Policy
       </a>
       .
     </p>
