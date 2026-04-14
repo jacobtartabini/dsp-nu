@@ -20,13 +20,35 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: `${org.name} - ${org.chapterName}`,
         short_name: org.shortName,
+        id: "/",
         description: org.meta.description,
         theme_color: org.meta.themeColor,
         background_color: org.meta.backgroundColor,
+        lang: "en",
+        dir: "ltr",
         display: "standalone",
+        display_override: ["window-controls-overlay", "standalone"],
         orientation: "portrait-primary",
         scope: "/",
         start_url: "/",
+        related_applications: [],
+        prefer_related_applications: false,
+        screenshots: [
+          {
+            src: "/screenshots/app-home-mobile.png",
+            sizes: "1170x2532",
+            type: "image/png",
+            form_factor: "narrow",
+            label: "Mobile dashboard overview",
+          },
+          {
+            src: "/screenshots/app-home-desktop.png",
+            sizes: "1440x900",
+            type: "image/png",
+            form_factor: "wide",
+            label: "Desktop dashboard overview",
+          },
+        ],
         icons: [
           { src: "/icons/icon-72x72.png", sizes: "72x72", type: "image/png", purpose: "maskable any" },
           { src: "/icons/icon-96x96.png", sizes: "96x96", type: "image/png", purpose: "maskable any" },
@@ -44,6 +66,8 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        // Work around intermittent terser exits during SW generation.
+        mode: "development",
         // Our main bundle can exceed Workbox's default 2MiB precache limit.
         // Increasing this prevents production builds from failing when the app grows.
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
