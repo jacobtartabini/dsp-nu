@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/core/auth/AuthContext';
 import { toast } from 'sonner';
 
 export interface Election {
@@ -247,30 +248,34 @@ export function useElectionVotes(positionIds?: string[]) {
 
 export function useMyElectionVotes(positionIds?: string[]) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const uid = user?.id ?? null;
+  const keyMine = ['my-election-votes', uid, positionIds] as const;
 
   // Members use this hook without useElectionVotes; they still need Realtime to merge peers' visible state is N/A,
   // but their own row must update from upsert + from events for multi-tab consistency.
   useEffect(() => {
-    if (!positionIds || positionIds.length === 0) return;
+    if (!positionIds || positionIds.length === 0 || !uid) return;
     const allowed = new Set(positionIds);
-    const channelId = `election-my-votes-${[...positionIds].sort().join('-')}`.slice(0, 180);
+    const channelId = `election-my-votes-${uid}-${[...positionIds].sort().join('-')}`.slice(0, 180);
     const channel = supabase
       .channel(channelId)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'election_votes' },
+        {
+          event: '*',
+          schema: 'public',
+          table: 'election_votes',
+          // Scope realtime to this voter only to reduce event fanout.
+          filter: `voter_id=eq.${uid}`,
+        },
         (payload: PgPayload) => {
-          void supabase.auth.getSession().then(({ data: { session } }) => {
-            const uid = session?.user?.id;
-            if (!uid) return;
-            const keyMine = ['my-election-votes', positionIds] as const;
-            queryClient.setQueryData<ElectionVote[]>(keyMine, (past) => {
-              if (past === undefined) {
-                void queryClient.invalidateQueries({ queryKey: keyMine });
-                return past;
-              }
-              return applyMyElectionVotesRealtime(past, payload, allowed, uid) ?? past;
-            });
+          queryClient.setQueryData<ElectionVote[]>(keyMine, (past) => {
+            if (past === undefined) {
+              void queryClient.invalidateQueries({ queryKey: keyMine });
+              return past;
+            }
+            return applyMyElectionVotesRealtime(past, payload, allowed, uid) ?? past;
           });
         }
       )
@@ -278,23 +283,21 @@ export function useMyElectionVotes(positionIds?: string[]) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient, positionIds]);
+  }, [keyMine, queryClient, positionIds, uid]);
 
   return useQuery({
-    queryKey: ['my-election-votes', positionIds],
+    queryKey: keyMine,
     queryFn: async () => {
-      if (!positionIds || positionIds.length === 0) return [];
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      if (!positionIds || positionIds.length === 0 || !uid) return [];
       const { data, error } = await supabase
         .from('election_votes')
         .select('*')
         .in('position_id', positionIds)
-        .eq('voter_id', user.id);
+        .eq('voter_id', uid);
       if (error) throw error;
       return data as ElectionVote[];
     },
-    enabled: !!positionIds && positionIds.length > 0,
+    enabled: !!uid && !!positionIds && positionIds.length > 0,
   });
 }
 
@@ -461,7 +464,7 @@ export function useCastVote() {
     },
     onSuccess: (data) => {
       qc.setQueriesData<ElectionVote[]>({ queryKey: ['my-election-votes'] }, (prev, query) => {
-        const ids = query.queryKey[1];
+        const ids = query.queryKey[2];
         if (!Array.isArray(ids) || !ids.includes(data.position_id)) return prev;
         return mergeMyElectionVotesCache(prev, data);
       });
