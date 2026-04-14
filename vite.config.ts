@@ -51,8 +51,20 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         runtimeCaching: [
           {
+            // Never cache auth/session endpoints to avoid stale session behavior under load.
+            urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/v1\/.*/i,
+            handler: "NetworkOnly",
+          },
+          {
+            // Election data should always be fresh during active voting.
+            urlPattern:
+              /^https:\/\/.*\.supabase\.co\/rest\/v1\/(election_votes|election_positions|election_candidates|elections).*/i,
+            handler: "NetworkOnly",
+          },
+          {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: "NetworkFirst",
+            method: "GET",
             options: {
               cacheName: "supabase-cache",
               expiration: {
