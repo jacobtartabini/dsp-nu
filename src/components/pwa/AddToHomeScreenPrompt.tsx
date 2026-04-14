@@ -13,6 +13,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const STORAGE_KEY = 'dsp-nu-a2hs-dismissed';
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
+
 function isStandalone(): boolean {
   if (typeof window === 'undefined') return false;
   return (
@@ -67,9 +72,11 @@ export function useAddToHomeScreen() {
 function AddToHomeScreenOverlay({
   variant,
   onDismiss,
+  onInstall,
 }: {
   variant: 'ios' | 'android';
   onDismiss: () => void;
+  onInstall?: () => void;
 }) {
   const isIOS = variant === 'ios';
 
@@ -146,6 +153,17 @@ function AddToHomeScreenOverlay({
               </>
             )}
           </div>
+          {!isIOS && onInstall && (
+            <div className="mt-5 flex justify-center">
+              <button
+                type="button"
+                onClick={onInstall}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Install now
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -155,6 +173,7 @@ function AddToHomeScreenOverlay({
 export function AddToHomeScreenProvider({ children }: { children: ReactNode }) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   const dismiss = useCallback(() => {
     setOpen(false);
@@ -165,9 +184,41 @@ export function AddToHomeScreenProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const promptInstall = useCallback(async () => {
+    if (!deferredPrompt) return;
+    await deferredPrompt.prompt();
+    try {
+      await deferredPrompt.userChoice;
+    } finally {
+      setDeferredPrompt(null);
+      setOpen(false);
+    }
+  }, [deferredPrompt]);
+
   const openPrompt = useCallback(() => {
+    if (deferredPrompt) {
+      void promptInstall();
+      return;
+    }
     if (typeof window !== 'undefined' && window.innerWidth >= 768) return;
     setOpen(true);
+  }, [deferredPrompt, promptInstall]);
+
+  useEffect(() => {
+    const onBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setDeferredPrompt(event as BeforeInstallPromptEvent);
+    };
+    const onAppInstalled = () => {
+      setDeferredPrompt(null);
+      setOpen(false);
+    };
+    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+    window.addEventListener('appinstalled', onAppInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', onAppInstalled);
+    };
   }, []);
 
   useEffect(() => {
@@ -196,7 +247,13 @@ export function AddToHomeScreenProvider({ children }: { children: ReactNode }) {
   return (
     <AddToHomeScreenContext.Provider value={value}>
       {children}
-      {overlayVariant && <AddToHomeScreenOverlay variant={overlayVariant} onDismiss={dismiss} />}
+      {overlayVariant && (
+        <AddToHomeScreenOverlay
+          variant={overlayVariant}
+          onDismiss={dismiss}
+          onInstall={overlayVariant === 'android' && deferredPrompt ? promptInstall : undefined}
+        />
+      )}
     </AddToHomeScreenContext.Provider>
   );
 }
