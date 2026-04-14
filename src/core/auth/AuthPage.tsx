@@ -142,7 +142,7 @@ export default function AuthPage() {
                     type="button"
                     variant="outline"
                     className={cn(
-                      'w-full',
+                      'relative w-full',
                       lastUsedLoginMethod === 'google' && 'border-primary/50 bg-primary/5 ring-1 ring-primary/30'
                     )}
                     onClick={handleGoogleSignIn}
@@ -159,6 +159,14 @@ export default function AuthPage() {
                       </svg>
                     )}
                     Continue with Google
+                    {lastUsedLoginMethod === 'google' && (
+                      <Badge
+                        variant="outline"
+                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 border-primary/35 bg-primary/10 text-[10px] font-semibold uppercase tracking-wide text-primary"
+                      >
+                        Last used
+                      </Badge>
+                    )}
                   </Button>
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
