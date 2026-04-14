@@ -623,6 +623,15 @@ function SettingsPageContent() {
               Terms of Service
               <ExternalLink className="h-3 w-3 opacity-70" />
             </a>
+            <a
+              href={legal.cookiesUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+            >
+              Cookie Policy
+              <ExternalLink className="h-3 w-3 opacity-70" />
+            </a>
           </nav>
         </footer>
       </div>
