@@ -590,7 +590,7 @@ function SettingsPageContent() {
 
         <footer className="mt-14 pt-8 border-t border-border/60">
           <p className="text-xs text-muted-foreground text-center sm:text-left leading-relaxed max-w-2xl mx-auto sm:mx-0 mb-5">
-            DSP is the chapter management platform for Delta Sigma Pi — helping members stay connected, track progress, and manage chapter operations.
+            The DSP App is a club management software developed and operated by Tartabini Enterprises LLC. It is provided to support communication, organization, and member engagement within participating student organizations. The DSP App is not owned, controlled, or governed by any affiliated organization.
           </p>
           <nav
             aria-label="Legal"
