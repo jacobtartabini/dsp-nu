@@ -17,6 +17,7 @@ import { AccountLegalNotice } from '@/components/legal/AccountLegalNotice';
 import { AppCopyrightFooter } from '@/components/layout/AppCopyrightFooter';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { AppLogo } from '@/components/branding/AppLogo';
 
 type LastUsedLoginMethod = 'google' | 'apple' | 'email';
 
@@ -139,9 +140,7 @@ export default function AuthPage() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-purple">
-              <span className="text-primary-foreground font-display font-bold text-2xl">{org.greekLetters}</span>
-            </div>
+            <AppLogo className="mx-auto mb-4 h-16 w-16 rounded-2xl shadow-purple" alt={`${org.shortName} logo`} />
             <h1 className="font-display text-2xl font-bold text-foreground">{org.name}</h1>
             <p className="text-muted-foreground">{org.tagline}</p>
           </div>

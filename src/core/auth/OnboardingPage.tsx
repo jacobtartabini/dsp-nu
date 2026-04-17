@@ -18,6 +18,7 @@ import { org } from '@/config/org';
 import { AccountLegalNotice } from '@/components/legal/AccountLegalNotice';
 import { AppCopyrightFooter } from '@/components/layout/AppCopyrightFooter';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AppLogo } from '@/components/branding/AppLogo';
 
 const TOTAL_STEPS = 5;
 const currentYear = new Date().getFullYear();
@@ -169,9 +170,7 @@ export default function OnboardingPage() {
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-sm">{org.greekLetters}</span>
-            </div>
+            <AppLogo className="h-8 w-8 rounded-lg" alt={`${org.shortName} logo`} />
             <span className="font-display font-semibold text-foreground text-sm">Welcome</span>
           </div>
           <StepIndicator current={step} total={TOTAL_STEPS} />
@@ -198,9 +197,9 @@ export default function OnboardingPage() {
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.15, type: 'spring', stiffness: 300 }}
-                    className="w-24 h-24 rounded-2xl gradient-primary flex items-center justify-center mx-auto shadow-purple"
+                    className="mx-auto w-24 h-24"
                   >
-                    <span className="text-primary-foreground font-display font-bold text-4xl">{org.greekLetters}</span>
+                    <AppLogo className="h-24 w-24 rounded-2xl shadow-purple" alt={`${org.shortName} logo`} />
                   </motion.div>
                   <div>
                     <h1 className="font-display text-3xl font-bold text-foreground">Welcome, {firstName || org.terms.member}!</h1>

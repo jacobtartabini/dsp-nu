@@ -10,6 +10,7 @@ import { EventReminderSync } from '@/features/notifications/components/EventRemi
 import { TicketPaymentReminderSync } from '@/features/notifications/components/TicketPaymentReminderSync';
 import { DuesReminderSync } from '@/features/dues/components/DuesReminderSync';
 import { AddToHomeScreenProvider } from '@/components/pwa/AddToHomeScreenPrompt';
+import { AppLogo } from '@/components/branding/AppLogo';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -22,9 +23,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center animate-pulse">
-            <span className="text-primary-foreground font-display font-bold text-xl">{org.greekLetters}</span>
-          </div>
+          <AppLogo className="h-12 w-12 animate-pulse rounded-xl" alt={`${org.shortName} logo`} />
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       </div>
