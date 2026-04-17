@@ -10,6 +10,7 @@ import {
 import { MoreVertical, X } from 'lucide-react';
 import { org } from '@/config/org';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { AppLogo } from '@/components/branding/AppLogo';
 
 const STORAGE_KEY = 'dsp-nu-a2hs-dismissed';
 
@@ -109,9 +110,7 @@ function AddToHomeScreenOverlay({
           </button>
 
           <div className="flex flex-col items-center text-center pr-8">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl gradient-primary shadow-lg ring-1 ring-white/10">
-              <span className="text-xl font-display font-bold text-primary-foreground">{org.greekLetters}</span>
-            </div>
+            <AppLogo className="mb-4 h-14 w-14 rounded-xl shadow-lg ring-1 ring-white/10" alt={`${org.shortName} logo`} />
             <h2 id="a2hs-title" className="text-lg font-semibold tracking-tight text-white">
               Install {org.shortName}
             </h2>

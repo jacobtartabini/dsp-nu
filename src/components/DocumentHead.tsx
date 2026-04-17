@@ -26,9 +26,11 @@ export function DocumentHead() {
 
     setMeta('property', 'og:title', title);
     setMeta('property', 'og:description', description);
+    setMeta('property', 'og:image', '/icons/icon-512x512.png');
 
     setMeta('name', 'twitter:title', title);
     setMeta('name', 'twitter:description', description);
+    setMeta('name', 'twitter:image', '/icons/icon-512x512.png');
   }, []);
 
   return null;

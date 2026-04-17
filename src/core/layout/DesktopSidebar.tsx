@@ -15,6 +15,7 @@ import { NotificationBell } from '@/features/notifications/components/Notificati
 import { useChapterSetting } from '@/hooks/useChapterSettings';
 import { org } from '@/config/org';
 import { getEnabledNavItems } from '@/config/featureRegistry';
+import { AppLogo } from '@/components/branding/AppLogo';
 
 export function DesktopSidebar() {
   const location = useLocation();
@@ -68,9 +69,7 @@ export function DesktopSidebar() {
       {/* Logo & Notifications */}
       <div className="p-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-display font-bold text-lg">{org.greekLetters}</span>
-          </div>
+          <AppLogo className="h-10 w-10 rounded-lg" alt={`${org.shortName} logo`} />
           <div>
             <h1 className="font-display font-semibold text-foreground">{org.name}</h1>
             <p className="text-xs text-muted-foreground">{org.chapterName}</p>
