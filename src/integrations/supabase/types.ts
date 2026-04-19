@@ -1095,6 +1095,7 @@ export type Database = {
           created_at: string
           data_usage_consent: boolean
           data_usage_consent_updated_at: string | null
+          email_notifications: boolean
           event_notifications: boolean
           event_reminder_24h: boolean
           id: string
@@ -1110,6 +1111,7 @@ export type Database = {
           created_at?: string
           data_usage_consent?: boolean
           data_usage_consent_updated_at?: string | null
+          email_notifications?: boolean
           event_notifications?: boolean
           event_reminder_24h?: boolean
           id?: string
@@ -1125,6 +1127,7 @@ export type Database = {
           created_at?: string
           data_usage_consent?: boolean
           data_usage_consent_updated_at?: string | null
+          email_notifications?: boolean
           event_notifications?: boolean
           event_reminder_24h?: boolean
           id?: string
