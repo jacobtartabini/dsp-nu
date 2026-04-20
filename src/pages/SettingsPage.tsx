@@ -802,7 +802,8 @@ function SettingsPageContent() {
         <footer className="mt-14 pt-8 border-t border-border/60">
           <p className="text-xs text-muted-foreground text-center sm:text-left leading-relaxed w-full mb-5">
             DSP is a white-labeled instance of the Nomos CMS, developed and operated by Tartabini Enterprises LLC. The platform is provided to support club operations, communication, and member engagement for participating organizations. All software, infrastructure, and data systems are owned and managed by Tartabini Enterprises LLC and are not affiliated with, governed by, or officially endorsed by Delta Sigma Pi.
-          <nav
+          </p>
+            <nav
             aria-label="Legal"
             className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-2 text-sm text-muted-foreground"
           >
