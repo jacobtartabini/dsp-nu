@@ -243,17 +243,17 @@ export default function AuthPage() {
                         <Input id="signin-email" name="email" type="email" required placeholder={org.auth.emailPlaceholder} />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="signin-password">Password</Label>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="signin-password">Password</Label>
+                          <button
+                            type="button"
+                            onClick={() => setShowForgotPassword((current) => !current)}
+                            className="text-xs font-medium text-primary hover:underline"
+                          >
+                            {showForgotPassword ? 'Cancel password reset' : 'Forgot password?'}
+                          </button>
+                        </div>
                         <Input id="signin-password" name="password" type="password" required placeholder="••••••••" />
-                      </div>
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setShowForgotPassword((current) => !current)}
-                          className="text-xs font-medium text-primary hover:underline"
-                        >
-                          {showForgotPassword ? 'Cancel password reset' : 'Forgot password?'}
-                        </button>
                       </div>
                     </div>
                     <Button
