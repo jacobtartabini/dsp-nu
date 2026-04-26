@@ -213,28 +213,6 @@ export default function AuthPage() {
                       </Badge>
                     )}
                   </Button>
-                  {org.auth.allowApple && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className={cn(
-                        'relative w-full',
-                        lastUsedLoginMethod === 'apple' && 'border-primary/50 bg-primary/5 ring-1 ring-primary/30'
-                      )}
-                      onClick={() => signInWithProvider('apple')}
-                      disabled={isGoogleLoading}
-                    >
-                      Continue with Apple
-                      {lastUsedLoginMethod === 'apple' && (
-                        <Badge
-                          variant="outline"
-                          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 border-primary/35 bg-primary/10 text-[10px] font-semibold uppercase tracking-wide text-primary"
-                        >
-                          Last used
-                        </Badge>
-                      )}
-                    </Button>
-                  )}
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <Separator />
@@ -330,17 +308,6 @@ export default function AuthPage() {
                     )}
                     Continue with Google
                   </Button>
-                  {org.auth.allowApple && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => signInWithProvider('apple')}
-                      disabled={isGoogleLoading}
-                    >
-                      Continue with Apple
-                    </Button>
-                  )}
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <Separator />
