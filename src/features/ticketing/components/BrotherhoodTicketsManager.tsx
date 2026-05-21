@@ -432,7 +432,9 @@ export function BrotherhoodTicketsManager({
               statusBadges={statusBadges}
               actions={actions}
               footer={footer}
+              passengerName={memberName}
             />
+
           );
         })}
       </div>
