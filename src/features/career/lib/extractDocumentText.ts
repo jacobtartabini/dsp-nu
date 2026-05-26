@@ -1,7 +1,6 @@
 // Client-side text extraction for PDF and DOCX files.
 // PDFs use pdfjs-dist with a Vite-bundled worker; DOCX uses mammoth.
 import * as pdfjs from 'pdfjs-dist';
-// @ts-expect-error - Vite handles ?url for worker assets
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import mammoth from 'mammoth';
 
